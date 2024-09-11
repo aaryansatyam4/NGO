@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaBars } from 'react-icons/fa';
-import { BsPerson, BsFileEarmarkText, BsPersonPlus, BsCalendar, BsCurrencyDollar, BsImages, BsHeart } from 'react-icons/bs';
+import { BsPerson, BsFileEarmarkText } from 'react-icons/bs';
+import { Link, useLocation } from 'react-router-dom'; // Import Link and useLocation
 
 const Sidebar = () => {
-  // Dropdown state for "Donate"
-  const [isDonateOpen, setIsDonateOpen] = useState(false);
-
-  // Sidebar collapse state
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const location = useLocation(); // Get the current location
+
+  // Function to determine if the link is active
+  const isActive = (path) => {
+    return location.pathname === path ? 'active' : '';
+  };
 
   return (
     <div className="d-flex">
@@ -24,11 +27,11 @@ const Sidebar = () => {
         <button
           className="btn btn-light"
           onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          style={{ marginRight: '10px' }}  // Space between hamburger and heading
+          style={{ marginRight: '10px' }} 
         >
           <FaBars />
         </button>
-        <h4 className="m-0">NGO</h4>  {/* NGO Heading */}
+        <h4 className="m-0">NGO</h4>
       </div>
 
       {/* Sidebar */}
@@ -36,74 +39,40 @@ const Sidebar = () => {
         width: isSidebarCollapsed ? '80px' : '250px', 
         height: '100vh', 
         transition: 'width 0.3s', 
-        position: 'fixed', // Make sidebar sticky
+        position: 'fixed', 
         top: '0',
         left: '0',
         zIndex: '999',
-        paddingTop: '60px' // To prevent overlapping with the hamburger and heading
+        paddingTop: '60px' 
       }}>
         <ul className="nav nav-pills flex-column mb-auto">
           {/* Be A Volunteer */}
           <li className="nav-item" style={{ marginTop: '50px' }}>
-            <a href="#" className={`nav-link active text-decoration-none ${isSidebarCollapsed ? 'text-center' : ''}`}>
+            <Link to="/be-volunteer" className={`nav-link text-decoration-none ${isActive('/be-volunteer')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
               {isSidebarCollapsed ? <BsPerson /> : 'Be A Volunteer'}
-            </a>
+            </Link>
           </li>
 
           {/* Report Lost Child */}
           <li className="nav-item">
-            <a href="#" className={`nav-link text-dark text-decoration-none ${isSidebarCollapsed ? 'text-center' : ''}`}>
+            <Link to="/report-lost-child" className={`nav-link text-decoration-none ${isActive('/report-lost-child')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
               {isSidebarCollapsed ? <BsFileEarmarkText /> : 'Report Lost Child'}
-            </a>
+            </Link>
           </li>
 
-          {/* Add Lost Child */}
           <li className="nav-item">
-            <a href="#" className={`nav-link text-dark text-decoration-none ${isSidebarCollapsed ? 'text-center' : ''}`}>
-              {isSidebarCollapsed ? <BsPersonPlus /> : 'Add Lost Child'}
-            </a>
+            <Link to="/AddLostChild" className={`nav-link text-decoration-none ${isActive('/AddLostChild')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
+              {isSidebarCollapsed ? <BsFileEarmarkText /> : 'Add Lost Child'}
+            </Link>
           </li>
 
-          {/* Upcoming Event */}
           <li className="nav-item">
-            <a href="#" className={`nav-link text-dark text-decoration-none ${isSidebarCollapsed ? 'text-center' : ''}`}>
-              {isSidebarCollapsed ? <BsCalendar /> : 'Upcoming Event'}
-            </a>
+            <Link to="/Events" className={`nav-link text-decoration-none ${isActive('/Events')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
+              {isSidebarCollapsed ? <BsFileEarmarkText /> : 'Events'}
+            </Link>
           </li>
 
-          {/* Donate with Dropdown */}
-          <li className="nav-item">
-            <a
-              href="#"
-              className={`nav-link dropdown-toggle text-dark ${isSidebarCollapsed ? 'text-center' : ''}`}
-              id="donateDropdown"
-              role="button"
-              aria-expanded={isDonateOpen}
-              onClick={() => setIsDonateOpen(!isDonateOpen)}
-            >
-              {isSidebarCollapsed ? <BsCurrencyDollar /> : 'Donate'}
-            </a>
-            {isDonateOpen && !isSidebarCollapsed && (
-              <ul className="dropdown-menu show">
-                <li><a className="dropdown-item" href="#">Track Donation</a></li>
-                <li><a className="dropdown-item" href="#">Donate</a></li>
-              </ul>
-            )}
-          </li>
-
-          {/* Gallery */}
-          <li className="nav-item">
-            <a href="#" className={`nav-link text-dark text-decoration-none ${isSidebarCollapsed ? 'text-center' : ''}`}>
-              {isSidebarCollapsed ? <BsImages /> : 'Gallery'}
-            </a>
-          </li>
-
-          {/* Adopt A Child */}
-          <li className="nav-item">
-            <a href="#" className={`nav-link text-dark text-decoration-none ${isSidebarCollapsed ? 'text-center' : ''}`}>
-              {isSidebarCollapsed ? <BsHeart /> : 'Adopt A Child'}
-            </a>
-          </li>
+          {/* Add other sidebar links here as needed */}
         </ul>
       </div>
     </div>
