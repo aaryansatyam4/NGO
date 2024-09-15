@@ -72,6 +72,22 @@ const Sidebar = () => {
             </Link>
           </li>
 
+          <li className="nav-item">
+            <Link to="/Donate" className={`nav-link text-decoration-none ${isActive('/Donate')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
+              {isSidebarCollapsed ? <BsFileEarmarkText /> : 'Donate'}
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/Gallery" className={`nav-link text-decoration-none ${isActive('/Gallery')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
+              {isSidebarCollapsed ? <BsFileEarmarkText /> : 'Gallery'}
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/AdoptChild" className={`nav-link text-decoration-none ${isActive('/AdoptChild')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
+              {isSidebarCollapsed ? <BsFileEarmarkText /> : 'Adopt a child'}
+            </Link>
+          </li>
+
           {/* Add other sidebar links here as needed */}
         </ul>
       </div>

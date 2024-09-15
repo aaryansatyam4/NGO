@@ -1,7 +1,8 @@
 import React from 'react';
 import Sidebar from '../Component/Sidebar/Sidebar'; // Import Sidebar component
 import Navbar from '../Component/Navbar/CustomNavbar'; // Import Navbar component
-import UpComingEvents from '../Component/UpComingEvents/UpComingEvents'; // Import UpComingEvents component
+import UpComingEvents from '../Component/Events/UpComingEvents'; // Import UpComingEvents component
+import PastEvents from '../Component/Events/PastEvents'; // Import PastEvents component
 
 const Events = () => {
   return (
@@ -17,10 +18,18 @@ const Events = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="d-flex" style={{ marginTop: '60px', marginLeft: '250px' }}>
-        <div className="content p-4" style={{ width: '100%' }}>
-          {/* Upcoming Events List */}
-          <UpComingEvents />
+      <div className="d-flex" style={{ marginTop: '60px', marginLeft: '250px', paddingRight: '15px', width: 'calc(100% - 250px)' }}>
+        <div className="container-fluid">
+          <div className="row">
+            {/* Upcoming Events */}
+            <div className="col-md-6">
+              <UpComingEvents />
+            </div>
+            {/* Past Events */}
+            <div className="col-md-6">
+              <PastEvents />
+            </div>
+          </div>
         </div>
       </div>
     </div>

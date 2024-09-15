@@ -8,6 +8,9 @@ import BeVolunteer from './Pages/BeVolunteer';
 import ReportLostChild from './Pages/ReportLostChild'; // Import ReportLostChild component
 import AddLostChild from './Pages/AddLostChild';
 import Events from './Pages/Events';
+import Donate from './Pages/Donate';
+import Gallery from './Pages/Gallery';
+import AdoptChild from './Pages/AdoptChild';
 const App = () => {
   return (
     <Router>
@@ -20,6 +23,9 @@ const App = () => {
         <Route path="/report-lost-child" element={<ReportLostChild />} />
         <Route path="/AddLostChild" element={<AddLostChild />} />
         <Route path="/Events" element={<Events />} />
+        <Route path="/Donate" element={<Donate />} />
+        <Route path="/Gallery" element={<Gallery />} />
+        <Route path="/AdoptChild" element={<AdoptChild />} />
       </Routes>
     </Router>
   );

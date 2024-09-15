@@ -1,19 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate()
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Perform login logic here
-    navigate('/dashboard'); // Navigate to Dashboard after login
+    axios.post('http://localhost:3001/login',{email,password})
+    .then(result => {console.log(result)
+    navigate('/dashboard')
+    if(result.data == "succesfull"){
+      navigate('/dashboard')
+    }
+    
+    })
+    .catch(err)
   };
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card p-4 shadow-lg" style={{ width: '22rem', borderRadius: '15px' }}>
         <h3 className="text-center mb-4">Login</h3>
+        {error && <div className="alert alert-danger" role="alert">{error}</div>}
         <form onSubmit={handleLogin}>
           <div className="form-group mb-3">
             <label htmlFor="email">Email address</label>
@@ -22,6 +34,9 @@ const Login = () => {
               className="form-control"
               id="email"
               placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
           <div className="form-group mb-4">
@@ -31,6 +46,9 @@ const Login = () => {
               className="form-control"
               id="password"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
           <button type="submit" className="btn btn-primary w-100">Login</button>

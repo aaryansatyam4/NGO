@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Signup = () => {
   const [category, setCategory] = useState('');
   const [photo, setPhoto] = useState(null);
+  const [name, setName] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [id, setId] = useState('');
+
+  const navigate = useNavigate(); // To navigate to /login after submission
 
   // Handler to update category selection
   const handleCategoryChange = (event) => {
@@ -15,32 +23,103 @@ const Signup = () => {
     setPhoto(event.target.files[0]);
   };
 
+  // Handler for name change
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  };
+
+  // Handler for mobile change
+  const handleMobileChange = (event) => {
+    setMobile(event.target.value);
+  };
+
+  // Handler for email change
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+
+  // Handler for password change
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
+
+  // Handler for ID change
+  const handleIdChange = (event) => {
+    setId(event.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const formData = {
+      name,
+      mobile,
+      email,
+      category,
+      password,
+      id,
+    };
+
+    axios.post('http://localhost:3001/register', formData)
+      .then(result => {
+        console.log(result);
+        navigate('/login'); // Navigate to /login after successful registration
+      })
+      .catch(err => console.log(err));
+  };
+
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card p-4 shadow-lg" style={{ width: '36rem', borderRadius: '15px' }}>
         <h3 className="text-center mb-4">Sign Up</h3>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="row">
             {/* Left Column: Form Fields */}
             <div className="col-md-6">
               <div className="form-group mb-3">
                 <label htmlFor="name">Name</label>
-                <input type="text" className="form-control" id="name" placeholder="Enter name" />
+                <input
+                  type="text"
+                  className="form-control"
+                  id="name"
+                  placeholder="Enter name"
+                  value={name}
+                  onChange={handleNameChange}
+                />
               </div>
 
               <div className="form-group mb-3">
                 <label htmlFor="mobile">Mobile</label>
-                <input type="text" className="form-control" id="mobile" placeholder="Enter mobile number" />
+                <input
+                  type="text"
+                  className="form-control"
+                  id="mobile"
+                  placeholder="Enter mobile number"
+                  value={mobile}
+                  onChange={handleMobileChange}
+                />
               </div>
 
               <div className="form-group mb-3">
                 <label htmlFor="email">Email</label>
-                <input type="email" className="form-control" id="email" placeholder="Enter email" />
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  placeholder="Enter email"
+                  value={email}
+                  onChange={handleEmailChange}
+                />
               </div>
 
               <div className="form-group mb-3">
                 <label htmlFor="category">Category</label>
-                <select className="form-control" id="category" onChange={handleCategoryChange}>
+                <select
+                  className="form-control"
+                  id="category"
+                  value={category}
+                  onChange={handleCategoryChange}
+                >
                   <option value="">Select Category</option>
                   <option value="user">User</option>
                   <option value="volunteer">Volunteer</option>
@@ -52,13 +131,27 @@ const Signup = () => {
               {['police', 'investigation'].includes(category) && (
                 <div className="form-group mb-3">
                   <label htmlFor="id">Police ID/Investigation ID</label>
-                  <input type="text" className="form-control" id="id" placeholder="Enter ID" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="id"
+                    placeholder="Enter ID"
+                    value={id}
+                    onChange={handleIdChange}
+                  />
                 </div>
               )}
 
               <div className="form-group mb-3">
                 <label htmlFor="password">Password</label>
-                <input type="password" className="form-control" id="password" placeholder="Enter password" />
+                <input
+                  type="password"
+                  className="form-control"
+                  id="password"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                />
               </div>
             </div>
 
@@ -89,7 +182,13 @@ const Signup = () => {
                 )}
               </div>
               <label htmlFor="photo" className="text-center">Face should be visible</label>
-              <input type="file" className="form-control mt-2" id="photo" accept="image/*" onChange={handlePhotoChange} />
+              <input
+                type="file"
+                className="form-control mt-2"
+                id="photo"
+                accept="image/*"
+                onChange={handlePhotoChange}
+              />
             </div>
           </div>
 
@@ -102,6 +201,6 @@ const Signup = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Signup;
