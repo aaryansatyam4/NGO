@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -10,6 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
 function CustomNavbar() {
   const [location, setLocation] = useState('Select Location');
   const [showDropdown, setShowDropdown] = useState(false); // State to toggle dropdown
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleLocationChange = (event) => {
     setLocation(event.target.value);
@@ -28,6 +30,11 @@ function CustomNavbar() {
   const randomAlerts = alertMessages.map((message, index) => (
     <Dropdown.Item key={index}>{message}</Dropdown.Item>
   ));
+
+  // Function to navigate to the profile page
+  const handleProfileClick = () => {
+    navigate('/profile'); // Navigate to the profile route
+  };
 
   return (
     <Navbar expand="lg" className="bg-body-tertiary sticky-top"> {/* Added sticky-top class */}
@@ -66,7 +73,7 @@ function CustomNavbar() {
               id="profile-nav-dropdown"
               align="end"
             >
-              <NavDropdown.Item href="#profile">Profile</NavDropdown.Item>
+              <NavDropdown.Item onClick={handleProfileClick}>Profile</NavDropdown.Item> {/* Navigate on click */}
               <NavDropdown.Item href="#logout">Logout</NavDropdown.Item>
             </NavDropdown>
           </Nav>

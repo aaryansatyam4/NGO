@@ -11,6 +11,7 @@ import Events from './Pages/Events';
 import Donate from './Pages/Donate';
 import Gallery from './Pages/Gallery';
 import AdoptChild from './Pages/AdoptChild';
+import Profile from './Pages/Profile';
 const App = () => {
   return (
     <Router>
@@ -26,6 +27,7 @@ const App = () => {
         <Route path="/Donate" element={<Donate />} />
         <Route path="/Gallery" element={<Gallery />} />
         <Route path="/AdoptChild" element={<AdoptChild />} />
+        <Route path="/Profile" element={<Profile />} />
       </Routes>
     </Router>
   );

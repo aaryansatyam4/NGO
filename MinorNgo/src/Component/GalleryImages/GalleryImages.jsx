@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Modal, Button } from 'react-bootstrap';
 
 const GalleryImages = () => {
-  const [images, setImages] = useState([
+  const [images] = useState([
     'https://picsum.photos/id/237/200/300?random=1',
     'https://picsum.photos/200/300?random=2',
     'https://picsum.photos/200/300?random=3',
@@ -20,48 +21,25 @@ const GalleryImages = () => {
     'https://picsum.photos/200/300?random=15',
     'https://picsum.photos/200/300?random=16'
   ]);
-  const totalImages = useRef(images.length);
-  const loaderRef = useRef();
 
-  // Function to load more images
-  const loadMoreImages = () => {
-    const newImages = [];
-    for (let i = 0; i < 12; i++) {
-      newImages.push(`https://picsum.photos/200/300?random=${totalImages.current + i + 1}`);
-    }
-    totalImages.current += 12;
-    setImages((prevImages) => [...prevImages, ...newImages]);
+  const [selectedImage, setSelectedImage] = useState(null); // To store the selected image
+  const [showModal, setShowModal] = useState(false); // For controlling the modal
+
+  // Handle image click to open modal
+  const handleImageClick = (imageSrc) => {
+    setSelectedImage(imageSrc);
+    setShowModal(true);
   };
 
-  // Function to handle scroll events and load images when scrolled to the bottom
-  const handleScroll = () => {
-    const scrollPercent = getVerticalScrollPercentage(document.body);
-    if (scrollPercent > 90) {
-      loadMoreImages();
-    }
+  // Close the modal
+  const handleClose = () => {
+    setShowModal(false);
+    setSelectedImage(null);
   };
-
-  // Get the vertical scroll percentage
-  const getVerticalScrollPercentage = (elm) => {
-    let p = elm.parentNode || document.body;
-    return ((elm.scrollTop || p.scrollTop) / (p.scrollHeight - p.clientHeight)) * 100;
-  };
-
-  // Adding the scroll event listener
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <div className="container">
-      <h1 className="text-center my-4">OUR WORK </h1>
-      <nav className="navbar navbar-dark bg-dark justify-content-center mb-4">
-        <a className="navbar-brand" href="https://alreylz.me">
-       
-        
-        </a>
-      </nav>
+      <h1 className="text-center my-4">OUR WORK</h1>
       <div className="row g-3">
         {images.map((imageSrc, index) => (
           <div className="col-md-3 col-sm-6" key={index}>
@@ -69,17 +47,27 @@ const GalleryImages = () => {
               className="img-fluid"
               src={imageSrc}
               alt={`Random ${index + 1}`}
-              style={{ animationDelay: `${0.5 * index}s`, opacity: 0 }}
-              onLoad={(e) => (e.target.style.opacity = 1)}
+              style={{ cursor: 'pointer' }}
+              onClick={() => handleImageClick(imageSrc)} // Open modal on click
             />
           </div>
         ))}
-        <div ref={loaderRef} className="col-12 text-center">
-          <div className="spinner-border text-warning" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
       </div>
+
+      {/* Modal for image enlargement */}
+      <Modal show={showModal} onHide={handleClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          {selectedImage && <img src={selectedImage} alt="Enlarged" className="img-fluid" />}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

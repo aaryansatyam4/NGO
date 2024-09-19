@@ -10,6 +10,7 @@ app.use(cors());
 
 mongoose.connect('mongodb+srv://aaryansatyam4:Asatyam2604@user.ycc6w.mongodb.net/', {
   // MongoDB connection options
+  
 })
   .then(() => console.log('MongoDB connected successfully'))
   .catch((err) => console.error('MongoDB connection error:', err));
@@ -65,11 +66,7 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });
-
 // Login route to handle user login
-
-
-
 app.listen(3001, () => {
   console.log('Server is running on port 3001');
 });
