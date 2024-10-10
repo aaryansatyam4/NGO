@@ -10,16 +10,34 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:3001/login',{email,password})
-    .then(result => {console.log(result)
-    navigate('/dashboard')
-    if(result.data == "succesfull"){
-      navigate('/dashboard')
+  axios.post('http://localhost:3001/login', { email, password })
+  .then(result => {
+    console.log("Login result:", result.data); // Log the server response
+    if (result.data.message === "successful") {
+      document.cookie = `userId=${result.data.userId}; path=/;`;
+      
+      const userCategory = result.data.category;
+      console.log("User category:", userCategory); // Log the user category
+
+      if (userCategory === "user") {
+        navigate('/dashboard');
+      } else if (userCategory === "volunteer") {
+        navigate('/dashboard');
+      } else if (userCategory === "police") {
+        navigate('/dashboard');
+      } else if (userCategory === "investigation") {
+        navigate('/dashboard');
+      }
+    } else {
+      setError(result.data.message); // Set error message if login fails
     }
-    
-    })
-    .catch(err)
+  })
+  .catch(err => {
+    setError('An error occurred during login');
+    console.error(err);
+  });
   };
+  
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">

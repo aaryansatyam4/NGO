@@ -1,6 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const UserProfileCard = () => {
+  const [userData, setUserData] = useState(null);
+  
+  // Helper function to read the cookie
+  const getCookie = (cookieName) => {
+    let name = cookieName + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let cookieArray = decodedCookie.split(';');
+    for (let i = 0; i < cookieArray.length; i++) {
+      let cookie = cookieArray[i];
+      while (cookie.charAt(0) === ' ') {
+        cookie = cookie.substring(1);
+      }
+      if (cookie.indexOf(name) === 0) {
+        return cookie.substring(name.length, cookie.length);
+      }
+    }
+    return "";
+  };
+
+  useEffect(() => {
+    const userId = getCookie('userId'); // Get userId from cookie
+
+    if (userId) {
+      axios.get(`http://localhost:3001/user/${userId}`)
+        .then(response => {
+          setUserData(response.data); // Store the user data in state
+        })
+        .catch(error => {
+          console.error('Error fetching user data:', error);
+        });
+    }
+  }, []);
+
+  if (!userData) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <section style={{ backgroundColor: '#eee' }}>
       <div className="container py-5">
@@ -15,8 +53,8 @@ const UserProfileCard = () => {
                   className="rounded-circle img-fluid"
                   style={{ width: '150px' }}
                 />
-                <h5 className="my-3">Aryan Satyam</h5>
-                <p className="text-muted mb-1">NGO Director</p>
+                <h5 className="my-3">{userData.name}</h5>
+                <p className="text-muted mb-1">{userData.category}</p>
                 <p className="text-muted mb-4">New Delhi, India</p>
                 <div className="d-flex justify-content-center mb-2">
                   <button type="button" className="btn btn-primary">Follow</button>
@@ -25,6 +63,7 @@ const UserProfileCard = () => {
               </div>
             </div>
 
+            {/* Social Links */}
             <div className="card mb-4 mb-lg-0">
               <div className="card-body p-0">
                 <ul className="list-group list-group-flush rounded-3">
@@ -62,7 +101,7 @@ const UserProfileCard = () => {
                     <p className="mb-0">Full Name</p>
                   </div>
                   <div className="col-sm-9">
-                    <p className="text-muted mb-0">Aarav Singh</p>
+                    <p className="text-muted mb-0">{userData.name}</p>
                   </div>
                 </div>
                 <hr />
@@ -71,7 +110,7 @@ const UserProfileCard = () => {
                     <p className="mb-0">Email</p>
                   </div>
                   <div className="col-sm-9">
-                    <p className="text-muted mb-0">aarav@saveourchildren.org.in</p>
+                    <p className="text-muted mb-0">{userData.email}</p>
                   </div>
                 </div>
                 <hr />
@@ -80,16 +119,7 @@ const UserProfileCard = () => {
                     <p className="mb-0">Phone</p>
                   </div>
                   <div className="col-sm-9">
-                    <p className="text-muted mb-0">(+91) 9876543210</p>
-                  </div>
-                </div>
-                <hr />
-                <div className="row">
-                  <div className="col-sm-3">
-                    <p className="mb-0">Mobile</p>
-                  </div>
-                  <div className="col-sm-9">
-                    <p className="text-muted mb-0">(+91) 9876543211</p>
+                    <p className="text-muted mb-0">{userData.mobile}</p>
                   </div>
                 </div>
                 <hr />
@@ -106,66 +136,8 @@ const UserProfileCard = () => {
 
             {/* Project Status */}
             <div className="row">
-              <div className="col-md-6">
-                <div className="card mb-4 mb-md-0">
-                  <div className="card-body">
-                    <p className="mb-4">
-                      <span className="text-primary font-italic me-1">assignment</span> Project Status
-                    </p>
-                    <p className="mb-1" style={{ fontSize: '.77rem' }}>Children Rescue Operations</p>
-                    <div className="progress rounded" style={{ height: '5px' }}>
-                      <div className="progress-bar" role="progressbar" style={{ width: '75%' }} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Awareness Programs</p>
-                    <div className="progress rounded" style={{ height: '5px' }}>
-                      <div className="progress-bar" role="progressbar" style={{ width: '60%' }} aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Legal Aid for Families</p>
-                    <div className="progress rounded" style={{ height: '5px' }}>
-                      <div className="progress-bar" role="progressbar" style={{ width: '85%' }} aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Education Programs</p>
-                    <div className="progress rounded" style={{ height: '5px' }}>
-                      <div className="progress-bar" role="progressbar" style={{ width: '50%' }} aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Healthcare Support</p>
-                    <div className="progress rounded mb-2" style={{ height: '5px' }}>
-                      <div className="progress-bar" role="progressbar" style={{ width: '65%' }} aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-md-6">
-                <div className="card mb-4 mb-md-0">
-                  <div className="card-body">
-                    <p className="mb-4">
-                      <span className="text-primary font-italic me-1">assignment</span> Project Status
-                    </p>
-                    <p className="mb-1" style={{ fontSize: '.77rem' }}>Rehabilitation of Children</p>
-                    <div className="progress rounded" style={{ height: '5px' }}>
-                      <div className="progress-bar" role="progressbar" style={{ width: '70%' }} aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Family Tracing Programs</p>
-                    <div className="progress rounded" style={{ height: '5px' }}>
-                      <div className="progress-bar" role="progressbar" style={{ width: '80%' }} aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Food and Shelter Drives</p>
-                    <div className="progress rounded" style={{ height: '5px' }}>
-                      <div className="progress-bar" role="progressbar" style={{ width: '90%' }} aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Volunteer Training Programs</p>
-                    <div className="progress rounded" style={{ height: '5px' }}>
-                      <div className="progress-bar" role="progressbar" style={{ width: '65%' }} aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Donor Engagement</p>
-                    <div className="progress rounded mb-2" style={{ height: '5px' }}>
-                      <div className="progress-bar" role="progressbar" style={{ width: '55%' }} aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> {/* End of Project Status */}
+              {/* Add your project status components here */}
+            </div>
           </div>
         </div>
       </div>

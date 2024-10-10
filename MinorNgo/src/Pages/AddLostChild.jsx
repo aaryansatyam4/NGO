@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import Sidebar from '../Component/Sidebar/Sidebar'; // Import Sidebar component
 import Navbar from '../Component/Navbar/CustomNavbar.jsx'; // Import Navbar component
+import axios from 'axios'; // For sending data to the backend
 
 const AddLostChild = () => {
   // State to handle form input
   const [formData, setFormData] = useState({
+    emailId: '', // Fixed to store email ID
     parentName: '',
     contactNumber: '',
     childName: '',
@@ -32,11 +34,33 @@ const AddLostChild = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    // Add the logic to send the form data to the server
-    // For file upload, you may need to use FormData and send it to the server via a POST request
+    
+    // Create FormData object to include the file and other form data
+    const formDataToSend = new FormData();
+    formDataToSend.append('emailId', formData.emailId);
+    formDataToSend.append('parentName', formData.parentName);
+    formDataToSend.append('contactNumber', formData.contactNumber);
+    formDataToSend.append('childName', formData.childName);
+    formDataToSend.append('age', formData.age);
+    formDataToSend.append('gender', formData.gender);
+    formDataToSend.append('lastSeen', formData.lastSeen);
+    formDataToSend.append('description', formData.description);
+    formDataToSend.append('childPhoto', formData.childPhoto); // File input
+    
+    try {
+      const response = await axios.post('http://localhost:3001/add-lost-child', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Important for file upload
+        },
+      });
+      console.log(response.data);
+      alert('Lost child data submitted successfully');
+    } catch (error) {
+      console.error(error);
+      alert('Error submitting the form');
+    }
   };
 
   return (
@@ -57,6 +81,21 @@ const AddLostChild = () => {
           <div className="card-body p-4">
             <h2 className="card-title text-center mb-4">Report Lost Child</h2>
             <form onSubmit={handleSubmit}>
+              {/* Email ID */}
+              <div className="mb-3">
+                <label className="form-label" htmlFor="emailId">Email Id</label>
+                <input 
+                  className="form-control" 
+                  id="emailId" 
+                  name="emailId" 
+                  type="email" 
+                  value={formData.emailId} 
+                  onChange={handleChange} 
+                  placeholder="Enter your email id" 
+                  required 
+                />
+              </div>
+
               {/* Parent Name */}
               <div className="mb-3">
                 <label className="form-label" htmlFor="parentName">Parent's Name</label>

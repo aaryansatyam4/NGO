@@ -56,7 +56,7 @@ const Sidebar = () => {
           {/* Report Lost Child */}
           <li className="nav-item">
             <Link to="/report-lost-child" className={`nav-link text-decoration-none ${isActive('/report-lost-child')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
-              {isSidebarCollapsed ? <BsFileEarmarkText /> : 'Report Lost Child'}
+              {isSidebarCollapsed ? <BsFileEarmarkText /> : 'Report Child'}
             </Link>
           </li>
 
