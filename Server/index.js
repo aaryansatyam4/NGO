@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 // MongoDB connection
-// const mongoURI = 
+const mongoURI = 'mongodb+srv://aaryansatyam4:Asatyam2604@user.ycc6w.mongodb.net/';
 mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -96,6 +96,11 @@ app.post('/add-lost-child', upload2.single('childPhoto'), (req, res) => {
     const { emailId, childName, age, lastSeenDate, lastSeenLocation, description, guardianName, contactInfo, additionalComments } = req.body;
     const childPhoto = req.file ? req.file.path : null;
 
+    if (!childPhoto) {
+        console.error("File upload failed.");
+        return res.status(400).json({ message: 'File upload failed' });
+    }
+
     const newLostChild = new LostChild({
         emailId,
         childName,
@@ -106,12 +111,43 @@ app.post('/add-lost-child', upload2.single('childPhoto'), (req, res) => {
         guardianName,
         contactInfo,
         additionalComments,
-        childPhoto, // File path for the uploaded photo (stored in 'upload2/')
+        childPhoto, // File path for the uploaded photo
     });
 
     newLostChild.save()
         .then(savedLostChild => res.status(201).json({ message: 'Lost child report saved successfully', child: savedLostChild }))
-        .catch(err => res.status(500).json({ message: 'Error saving lost child report', error: err.message }));
+        .catch(err => {
+            console.error('Error saving lost child report:', err.message);  // Log error message
+            res.status(500).json({ message: 'Internal server error', error: err.message });
+        });
+});
+
+// User registration route
+app.post('/register', async (req, res) => {
+    try {
+        const { name, mobile, email, category, password, id } = req.body;
+
+        if (!name || !mobile || !email || !category || !password) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        // Create a new user
+        const newUser = new User({
+            name,
+            mobile,
+            email,
+            category,
+            password,
+            id
+        });
+
+        // Save the new user to the database
+        const savedUser = await newUser.save();
+        res.status(200).json({ message: 'User registered successfully', user: savedUser });
+    } catch (error) {
+        console.error('Error during user registration:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
 });
 
 // Serve uploaded images statically

@@ -7,15 +7,13 @@ import axios from 'axios'; // For sending data to the backend
 const ReportLostChild = () => {
   // State to handle form input
   const [formData, setFormData] = useState({
-    emailId: '',
+    parentName: '',
+    contactNumber: '',
     childName: '',
     age: '',
-    lastSeenDate: '',
-    lastSeenLocation: '',
+    gender: '',
+    lastSeen: '',
     description: '',
-    guardianName: '',
-    contactInfo: '',
-    additionalComments: '',
     childPhoto: null,
   });
 
@@ -42,25 +40,23 @@ const ReportLostChild = () => {
     e.preventDefault();
     
     const formDataToSend = new FormData();
-    formDataToSend.append('emailId', formData.emailId);
+    formDataToSend.append('parentName', formData.parentName);
+    formDataToSend.append('contactNumber', formData.contactNumber);
     formDataToSend.append('childName', formData.childName);
     formDataToSend.append('age', formData.age);
-    formDataToSend.append('lastSeenDate', formData.lastSeenDate);
-    formDataToSend.append('lastSeenLocation', formData.lastSeenLocation);
+    formDataToSend.append('gender', formData.gender);
+    formDataToSend.append('lastSeen', formData.lastSeen);
     formDataToSend.append('description', formData.description);
-    formDataToSend.append('guardianName', formData.guardianName);
-    formDataToSend.append('contactInfo', formData.contactInfo);
-    formDataToSend.append('additionalComments', formData.additionalComments);
     formDataToSend.append('childPhoto', formData.childPhoto); // File input
-    
+
     try {
-      const response = await axios.post('http://localhost:3001/add-lost-child', formDataToSend, {
+      const response = await axios.post('http://localhost:3001/add-missing-child', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       console.log(response.data);
-      alert('Lost child report submitted successfully');
+      alert('Missing child report submitted successfully');
     } catch (error) {
       console.error(error);
       alert('Error submitting the report');
@@ -86,29 +82,42 @@ const ReportLostChild = () => {
             <Col md={8}>
               <Card className="shadow-lg p-4 mb-5 bg-white rounded">
                 <Card.Body>
-                  <h3 className="text-center mb-4">Report a Lost Child</h3>
+                  <h3 className="text-center mb-4">Report a Missing Child</h3>
                   <p className="text-center text-muted mb-4">
-                    Please provide as much information as possible to help us find the lost child.
+                    Please provide as much information as possible to help us find the missing child.
                   </p>
 
-                  {/* Report Lost Child Form */}
+                  {/* Report Missing Child Form */}
                   <Form onSubmit={handleSubmit}>
-                    {/* Email Id */}
-                    <Form.Group className="mb-3" controlId="formEmailId">
-                      <Form.Label>Email Id</Form.Label>
+                    {/* Parent's Name */}
+                    <Form.Group className="mb-3" controlId="formParentName">
+                      <Form.Label>Parent's Name</Form.Label>
                       <Form.Control 
-                        type="email" 
-                        name="emailId"
-                        value={formData.emailId}
+                        type="text" 
+                        name="parentName"
+                        value={formData.parentName}
                         onChange={handleChange} 
-                        placeholder="Enter your email" 
+                        placeholder="Enter parent's name" 
+                        required 
+                      />
+                    </Form.Group>
+
+                    {/* Contact Number */}
+                    <Form.Group className="mb-3" controlId="formContactNumber">
+                      <Form.Label>Contact Number</Form.Label>
+                      <Form.Control 
+                        type="text" 
+                        name="contactNumber"
+                        value={formData.contactNumber}
+                        onChange={handleChange} 
+                        placeholder="Enter contact number" 
                         required 
                       />
                     </Form.Group>
 
                     {/* Child's Name */}
                     <Form.Group className="mb-3" controlId="formChildName">
-                      <Form.Label>Child's Full Name</Form.Label>
+                      <Form.Label>Child's Name</Form.Label>
                       <Form.Control 
                         type="text" 
                         name="childName"
@@ -132,16 +141,20 @@ const ReportLostChild = () => {
                       />
                     </Form.Group>
 
-                    {/* Last Seen Date */}
-                    <Form.Group className="mb-3" controlId="formLastSeenDate">
-                      <Form.Label>Date Last Seen</Form.Label>
-                      <Form.Control 
-                        type="date" 
-                        name="lastSeenDate"
-                        value={formData.lastSeenDate}
-                        onChange={handleChange} 
-                        required 
-                      />
+                    {/* Gender */}
+                    <Form.Group className="mb-3" controlId="formChildGender">
+                      <Form.Label>Gender</Form.Label>
+                      <Form.Select 
+                        name="gender"
+                        value={formData.gender}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </Form.Select>
                     </Form.Group>
 
                     {/* Last Seen Location */}
@@ -149,8 +162,8 @@ const ReportLostChild = () => {
                       <Form.Label>Last Seen Location</Form.Label>
                       <Form.Control 
                         type="text" 
-                        name="lastSeenLocation"
-                        value={formData.lastSeenLocation}
+                        name="lastSeen"
+                        value={formData.lastSeen}
                         onChange={handleChange} 
                         placeholder="Enter last known location" 
                         required 
@@ -178,45 +191,6 @@ const ReportLostChild = () => {
                         value={formData.description}
                         onChange={handleChange}
                         placeholder="Provide any identifiable information" 
-                      />
-                    </Form.Group>
-
-                    {/* Parent/Guardian Name */}
-                    <Form.Group className="mb-3" controlId="formGuardianName">
-                      <Form.Label>Parent/Guardian Name</Form.Label>
-                      <Form.Control 
-                        type="text" 
-                        name="guardianName"
-                        value={formData.guardianName}
-                        onChange={handleChange} 
-                        placeholder="Enter parent/guardian's full name" 
-                        required 
-                      />
-                    </Form.Group>
-
-                    {/* Contact Information */}
-                    <Form.Group className="mb-3" controlId="formContactInfo">
-                      <Form.Label>Contact Information (Phone/Email)</Form.Label>
-                      <Form.Control 
-                        type="text" 
-                        name="contactInfo"
-                        value={formData.contactInfo}
-                        onChange={handleChange} 
-                        placeholder="Enter contact details" 
-                        required 
-                      />
-                    </Form.Group>
-
-                    {/* Additional Comments */}
-                    <Form.Group className="mb-4" controlId="formAdditionalComments">
-                      <Form.Label>Additional Information or Comments</Form.Label>
-                      <Form.Control 
-                        as="textarea" 
-                        rows={3} 
-                        name="additionalComments"
-                        value={formData.additionalComments}
-                        onChange={handleChange}
-                        placeholder="Enter any other relevant details" 
                       />
                     </Form.Group>
 

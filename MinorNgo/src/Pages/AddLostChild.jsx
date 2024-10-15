@@ -79,7 +79,7 @@ const AddLostChild = () => {
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', marginLeft: '250px', marginTop: '60px' }}>
         <div className="card shadow-lg" style={{ maxWidth: '600px', width: '100%' }}>
           <div className="card-body p-4">
-            <h2 className="card-title text-center mb-4">Report Lost Child</h2>
+            <h2 className="card-title text-center mb-4">Report Your Lost Child</h2>
             <form onSubmit={handleSubmit}>
               {/* Email ID */}
               <div className="mb-3">
