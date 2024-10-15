@@ -43,7 +43,6 @@ const UserProfileCard = () => {
     <section style={{ backgroundColor: '#eee' }}>
       <div className="container py-5">
         <div className="row">
-          {/* Left Column - User Profile */}
           <div className="col-lg-4">
             <div className="card mb-4">
               <div className="card-body text-center">
@@ -92,7 +91,6 @@ const UserProfileCard = () => {
             </div>
           </div>
 
-          {/* Right Column - User Details */}
           <div className="col-lg-8">
             <div className="card mb-4">
               <div className="card-body">
