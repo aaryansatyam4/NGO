@@ -1,66 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../Component/Sidebar/Sidebar'; // Import Sidebar component
 import Navbar from '../Component/Navbar/CustomNavbar.jsx'; // Import Navbar component
 import axios from 'axios'; // For sending data to the backend
 
 const AddLostChild = () => {
-  // State to handle form input
   const [formData, setFormData] = useState({
-    emailId: '', // Fixed to store email ID
-    parentName: '',
-    contactNumber: '',
     childName: '',
     age: '',
     gender: '',
     lastSeen: '',
     description: '',
     childPhoto: null,
+    guardianName: '',
+    contactInfo: '',
+    additionalComments: '',
+    lastSeenLocation: '', // Added lastSeenLocation
   });
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('childName', formData.childName);
+    formDataToSend.append('age', formData.age);
+    formDataToSend.append('gender', formData.gender);
+    formDataToSend.append('lastSeen', formData.lastSeen);
+    formDataToSend.append('description', formData.description);
+    formDataToSend.append('guardianName', formData.guardianName);
+    formDataToSend.append('contactInfo', formData.contactInfo);
+    formDataToSend.append('additionalComments', formData.additionalComments);
+    formDataToSend.append('lastSeenLocation', formData.lastSeenLocation); // Added lastSeenLocation to submission
+    formDataToSend.append('childPhoto', formData.childPhoto); // Ensure the file input is correctly appended
+
+    try {
+      const response = await axios.post('http://localhost:3001/add-lost-child', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Ensure multipart/form-data
+        },
+        withCredentials: true, // Ensure cookies are sent
+      });
+      console.log(response.data);
+      alert('Lost child report submitted successfully');
+    } catch (error) {
+      console.error('Error submitting the form:', error.response ? error.response.data : error.message);
+      alert('Error submitting the form');
+    }
+  };
+
+  // File change handler
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prevData) => ({
+      ...prevData,
+      childPhoto: file, // Make sure this sets the file correctly
+    }));
+  };
+
+  // General input change handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-  };
-
-  // Handle file upload
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setFormData((prevData) => ({
-      ...prevData,
-      childPhoto: file,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Create FormData object to include the file and other form data
-    const formDataToSend = new FormData();
-    formDataToSend.append('emailId', formData.emailId);
-    formDataToSend.append('parentName', formData.parentName);
-    formDataToSend.append('contactNumber', formData.contactNumber);
-    formDataToSend.append('childName', formData.childName);
-    formDataToSend.append('age', formData.age);
-    formDataToSend.append('gender', formData.gender);
-    formDataToSend.append('lastSeen', formData.lastSeen);
-    formDataToSend.append('description', formData.description);
-    formDataToSend.append('childPhoto', formData.childPhoto); // File input
-    
-    try {
-      const response = await axios.post('http://localhost:3001/add-lost-child', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Important for file upload
-        },
-      });
-      console.log(response.data);
-      alert('Lost child data submitted successfully');
-    } catch (error) {
-      console.error(error);
-      alert('Error submitting the form');
-    }
   };
 
   return (
@@ -79,54 +81,9 @@ const AddLostChild = () => {
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', marginLeft: '250px', marginTop: '60px' }}>
         <div className="card shadow-lg" style={{ maxWidth: '600px', width: '100%' }}>
           <div className="card-body p-4">
-            <h2 className="card-title text-center mb-4">Report Your Lost Child</h2>
+            <h2 className="card-title text-center mb-4">Report Lost Child</h2>
             <form onSubmit={handleSubmit}>
-              {/* Email ID */}
-              <div className="mb-3">
-                <label className="form-label" htmlFor="emailId">Email Id</label>
-                <input 
-                  className="form-control" 
-                  id="emailId" 
-                  name="emailId" 
-                  type="email" 
-                  value={formData.emailId} 
-                  onChange={handleChange} 
-                  placeholder="Enter your email id" 
-                  required 
-                />
-              </div>
-
-              {/* Parent Name */}
-              <div className="mb-3">
-                <label className="form-label" htmlFor="parentName">Parent's Name</label>
-                <input 
-                  className="form-control" 
-                  id="parentName" 
-                  name="parentName" 
-                  type="text" 
-                  value={formData.parentName} 
-                  onChange={handleChange} 
-                  placeholder="Enter parent's full name" 
-                  required 
-                />
-              </div>
-
-              {/* Contact Number */}
-              <div className="mb-3">
-                <label className="form-label" htmlFor="contactNumber">Contact Number</label>
-                <input 
-                  className="form-control" 
-                  id="contactNumber" 
-                  name="contactNumber" 
-                  type="tel" 
-                  value={formData.contactNumber} 
-                  onChange={handleChange} 
-                  placeholder="Enter contact number" 
-                  required 
-                />
-              </div>
-
-              {/* Child Name */}
+              {/* Child's Name */}
               <div className="mb-3">
                 <label className="form-label" htmlFor="childName">Child's Name</label>
                 <input 
@@ -176,15 +133,15 @@ const AddLostChild = () => {
 
               {/* Last Seen Location */}
               <div className="mb-3">
-                <label className="form-label" htmlFor="lastSeen">Last Seen Location</label>
+                <label className="form-label" htmlFor="lastSeenLocation">Last Seen Location</label>
                 <input 
                   className="form-control" 
-                  id="lastSeen" 
-                  name="lastSeen" 
+                  id="lastSeenLocation" 
+                  name="lastSeenLocation" 
                   type="text" 
-                  value={formData.lastSeen} 
+                  value={formData.lastSeenLocation} 
                   onChange={handleChange} 
-                  placeholder="Enter location where child was last seen" 
+                  placeholder="Enter last known location" 
                   required 
                 />
               </div>
@@ -201,6 +158,50 @@ const AddLostChild = () => {
                   placeholder="Provide additional details about the child" 
                   rows="3" 
                   required 
+                ></textarea>
+              </div>
+
+              {/* Guardian's Name */}
+              <div className="mb-3">
+                <label className="form-label" htmlFor="guardianName">Guardian's Name</label>
+                <input 
+                  className="form-control" 
+                  id="guardianName" 
+                  name="guardianName" 
+                  type="text" 
+                  value={formData.guardianName} 
+                  onChange={handleChange} 
+                  placeholder="Enter guardian's full name" 
+                  required 
+                />
+              </div>
+
+              {/* Contact Information */}
+              <div className="mb-3">
+                <label className="form-label" htmlFor="contactInfo">Contact Information</label>
+                <input 
+                  className="form-control" 
+                  id="contactInfo" 
+                  name="contactInfo" 
+                  type="text" 
+                  value={formData.contactInfo} 
+                  onChange={handleChange} 
+                  placeholder="Enter contact information" 
+                  required 
+                />
+              </div>
+
+              {/* Additional Comments */}
+              <div className="mb-3">
+                <label className="form-label" htmlFor="additionalComments">Additional Comments</label>
+                <textarea 
+                  className="form-control" 
+                  id="additionalComments" 
+                  name="additionalComments" 
+                  value={formData.additionalComments} 
+                  onChange={handleChange} 
+                  placeholder="Any additional information" 
+                  rows="3"
                 ></textarea>
               </div>
 

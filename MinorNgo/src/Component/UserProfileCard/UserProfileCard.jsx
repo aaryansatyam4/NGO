@@ -121,14 +121,7 @@ const UserProfileCard = () => {
                   </div>
                 </div>
                 <hr />
-                <div className="row">
-                  <div className="col-sm-3">
-                    <p className="mb-0">Address</p>
-                  </div>
-                  <div className="col-sm-9">
-                    <p className="text-muted mb-0">C-15, South Extension, New Delhi, India</p>
-                  </div>
-                </div>
+        
               </div>
             </div>
 

@@ -5,7 +5,6 @@ import Navbar from '../Component/Navbar/CustomNavbar'; // Assuming you have a Na
 import axios from 'axios'; // For sending data to the backend
 
 const ReportLostChild = () => {
-  // State to handle form input and fetched lost child data
   const [formData, setFormData] = useState({
     parentName: '',
     contactNumber: '',
@@ -17,7 +16,8 @@ const ReportLostChild = () => {
     childPhoto: null,
   });
 
-  const [lostChildData, setLostChildData] = useState(null);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -40,7 +40,9 @@ const ReportLostChild = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setError(null); // Reset previous errors
+    setSuccess(null); // Reset previous success message
+
     const formDataToSend = new FormData();
     formDataToSend.append('parentName', formData.parentName);
     formDataToSend.append('contactNumber', formData.contactNumber);
@@ -52,27 +54,18 @@ const ReportLostChild = () => {
     formDataToSend.append('childPhoto', formData.childPhoto); // File input
 
     try {
-      const response = await axios.post('http://localhost:3001/add-lost-child', formDataToSend, {
+      const response = await axios.post('http://localhost:3001/add-missing-child', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        withCredentials: true, // Ensure cookies are sent with the request
       });
-      console.log(response.data);
-      alert('Lost child report submitted successfully');
-    } catch (error) {
-      console.error(error);
-      alert('Error submitting the report');
-    }
-  };
 
-  // Fetch lost child details by matching email/contact number
-  const handleFetchLostChild = async () => {
-    try {
-      const response = await axios.get(`http://localhost:3001/lost-children/${formData.contactNumber}`);
-      setLostChildData(response.data);
+      setSuccess('Lost child report submitted successfully.');
+      console.log(response.data);
     } catch (error) {
-      console.error('Error fetching lost child:', error);
-      alert('No lost child record found');
+      setError(`Error submitting the report: ${error.response ? error.response.data.message : error.message}`);
+      console.error(error);
     }
   };
 
@@ -95,10 +88,13 @@ const ReportLostChild = () => {
             <Col md={8}>
               <Card className="shadow-lg p-4 mb-5 bg-white rounded">
                 <Card.Body>
-                  <h3 className="text-center mb-4">Report a Lost Child</h3>
+                  <h3 className="text-center mb-4">Report Lost Child</h3>
                   <p className="text-center text-muted mb-4">
                     Please provide as much information as possible to help us find the lost child.
                   </p>
+
+                  {error && <div className="alert alert-danger">{error}</div>}
+                  {success && <div className="alert alert-success">{success}</div>}
 
                   {/* Report Lost Child Form */}
                   <Form onSubmit={handleSubmit}>
@@ -216,26 +212,6 @@ const ReportLostChild = () => {
                   </Form>
                 </Card.Body>
               </Card>
-              
-              {/* Fetch and Display Lost Child */}
-              <div className="mt-4">
-                <Button variant="primary" onClick={handleFetchLostChild}>
-                  Check Lost Child by Contact Number
-                </Button>
-
-                {lostChildData && (
-                  <div className="mt-4">
-                    <h5>Lost Child Details:</h5>
-                    <p><strong>Parent's Name:</strong> {lostChildData.parentName}</p>
-                    <p><strong>Child's Name:</strong> {lostChildData.childName}</p>
-                    <p><strong>Age:</strong> {lostChildData.age}</p>
-                    <p><strong>Last Seen Location:</strong> {lostChildData.lastSeen}</p>
-                    <p><strong>Description:</strong> {lostChildData.description}</p>
-                    <img src={`http://localhost:3001/${lostChildData.childPhoto}`} alt="Lost Child" style={{ width: '150px' }} />
-                  </div>
-                )}
-              </div>
-
             </Col>
           </Row>
         </Container>

@@ -7,38 +7,43 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate()
-
   const handleLogin = (e) => {
     e.preventDefault();
-  axios.post('http://localhost:3001/login', { email, password })
-  .then(result => {
-    console.log("Login result:", result.data); // Log the server response
-    if (result.data.message === "successful") {
-      document.cookie = `userId=${result.data.userId}; path=/;`;
-      
-      const userCategory = result.data.category;
-      console.log("User category:", userCategory); // Log the user category
-
-      if (userCategory === "user") {
-        navigate('/dashboard');
-      } else if (userCategory === "volunteer") {
-        navigate('/dashboard');
-      } else if (userCategory === "police") {
-        navigate('/dashboard');
-      } else if (userCategory === "investigation") {
-        navigate('/dashboard');
-      }
-    } else {
-      setError(result.data.message); // Set error message if login fails
-    }
-  })
-  .catch(err => {
-    setError('An error occurred during login');
-    console.error(err);
-  });
+    axios.post('http://localhost:3001/login', { email, password })
+      .then(result => {
+        console.log("Login result:", result.data); // Log the server response
+        if (result.data.message === "Login successful") {
+          document.cookie = `userId=${result.data.userId}; path=/;`;
+          
+          const userCategory = result.data.category;
+          console.log("User category:", userCategory); // Log the user category
+  
+          // Check the category and navigate
+          if (userCategory === "user") {
+            console.log("Navigating to /dashboard for user");
+            navigate('/dashboard');
+          } else if (userCategory === "volunteer") {
+            console.log("Navigating to /dashboard for volunteer");
+            navigate('/dashboard');
+          } else if (userCategory === "police") {
+            console.log("Navigating to /dashboard for police");
+            navigate('/dashboard');
+          } else if (userCategory === "investigation") {
+            console.log("Navigating to /dashboard for investigation");
+            navigate('/dashboard');
+          } else {
+            console.log("Unknown category, cannot navigate");
+          }
+        } else {
+          setError(result.data.message); // Set error message if login fails
+        }
+      })
+      .catch(err => {
+        setError('An error occurred during login');
+        console.error(err);
+      });
   };
   
-
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card p-4 shadow-lg" style={{ width: '22rem', borderRadius: '15px' }}>

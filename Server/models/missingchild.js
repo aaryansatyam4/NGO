@@ -9,6 +9,7 @@ const MissingChildSchema = new mongoose.Schema({
   lastSeen: { type: String, required: true },
   description: { type: String, required: true },
   childPhoto: { type: String }, // Path to the uploaded image
+  submittedBy: { type: String, required: true }, // User ID who submitted the report
   dateReported: { type: Date, default: Date.now }
 });
 
