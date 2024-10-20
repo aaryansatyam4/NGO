@@ -36,10 +36,17 @@ function CustomNavbar() {
     navigate('/profile'); // Navigate to the profile route
   };
 
+  // Function to handle logout
+  const handleLogout = () => {
+    // Clear user session (e.g., token, cookies)
+    localStorage.removeItem('token'); // If using localStorage for the token
+    document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; // Clear the cookie
+    navigate('/login'); // Navigate to the login page after logout
+  };
+
   return (
     <Navbar expand="lg" className="bg-body-tertiary sticky-top"> {/* Added sticky-top class */}
       <Container>
-        
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="ms-auto align-items-center"> {/* align-items-center for vertical alignment */}
@@ -73,8 +80,8 @@ function CustomNavbar() {
               id="profile-nav-dropdown"
               align="end"
             >
-              <NavDropdown.Item onClick={handleProfileClick}>Profile</NavDropdown.Item> {/* Navigate on click */}
-              <NavDropdown.Item href="#logout">Logout</NavDropdown.Item>
+              <NavDropdown.Item onClick={handleProfileClick}>Profile</NavDropdown.Item>
+              <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item> {/* Call handleLogout on click */}
             </NavDropdown>
           </Nav>
         </Navbar.Collapse>

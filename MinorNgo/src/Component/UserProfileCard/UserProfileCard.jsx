@@ -58,7 +58,6 @@ const UserProfileCard = () => {
                 <p className="text-muted mb-1">{userData.category}</p>
                 <p className="text-muted mb-4">New Delhi, India</p>
                 <div className="d-flex justify-content-center mb-2">
-                  <button type="button" className="btn btn-primary">Follow</button>
                   <button type="button" className="btn btn-outline-primary ms-1">Message</button>
                 </div>
               </div>
