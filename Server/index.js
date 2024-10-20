@@ -194,6 +194,39 @@ app.post('/add-lost-child', uploadLostChild.single('childPhoto'), async (req, re
       res.status(500).json({ message: 'Internal server error', error: err.message });
     }
   });
+
+  
+  app.get('/missing-children', async (req, res) => {
+    const userId = req.cookies.userId; // Get userId from cookies
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+  
+    try {
+      const missingChildren = await MissingChild.find({ submittedBy: userId }); // Find missing children by userId
+      res.status(200).json(missingChildren);
+    } catch (err) {
+      console.error('Error fetching missing children:', err);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+
+  
+  app.get('/lost-children', async (req, res) => {
+    const userId = req.cookies.userId; // Get userId from cookies
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+  
+    try {
+      const lostChildren = await LostChild.find({ submittedBy: userId }); // Find lost children by userId
+      res.status(200).json(lostChildren);
+    } catch (err) {
+      console.error('Error fetching lost children:', err);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
   
 
 // ----------------------------- Fetch Lost Child by Email API -----------------------------

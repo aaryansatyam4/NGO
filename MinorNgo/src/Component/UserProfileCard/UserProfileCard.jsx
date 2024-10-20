@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import ReportedLostChildren from '../Reported/ReportedLostChildren';
+import ReportedMissingChildren from '../Reported/ReportedMissingChildren';
 
 const UserProfileCard = () => {
   const [userData, setUserData] = useState(null);
@@ -124,6 +126,8 @@ const UserProfileCard = () => {
         
               </div>
             </div>
+            <ReportedLostChildren/>
+            <ReportedMissingChildren/>
 
             {/* Project Status */}
             <div className="row">
