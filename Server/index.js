@@ -12,13 +12,17 @@ const LostChild = require('./models/lostchildmodel');
 
 // Initialize the app
 const app = express();
-app.use(express.json());
-app.use('/userpic', cors({
-  origin: 'http://localhost:5173',
-  credentials: true
-}), express.static('userpic'));
 
+// Enable CORS for all routes globally
+app.use(cors({
+  origin: 'http://localhost:5173', // Replace with your frontend origin
+  credentials: true, // Allow credentials like cookies
+}));
+
+// Middleware setup
+app.use(express.json());
 app.use(cookieParser()); // For accessing cookies
+
 
 // MongoDB connection
 mongoose.connect('mongodb+srv://aaryansatyam4:Asatyam2604@user.ycc6w.mongodb.net/', {
