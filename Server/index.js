@@ -236,6 +236,61 @@ app.get('/missing-children', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+// Get all missing children regardless of the user who submitted
+app.get('/all-lost-children', async (req, res) => {
+  try {
+    // Fetch all lost children records from the database
+    const lostChildren = await LostChild.find(); // No filter, return all records
+    res.status(200).json(lostChildren); // Return all lost children
+  } catch (err) {
+    console.error('Error fetching lost children:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.put('/close-case/:id', async (req, res) => {
+  try {
+    const childId = req.params.id;
+    console.log("Received request to close case for child ID:", childId); // Log to check the childId
+    const { founded } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(childId)) {
+      return res.status(400).json({ message: 'Invalid child ID' });
+    }
+
+    const updatedChild = await LostChild.findByIdAndUpdate(childId, { founded }, { new: true });
+
+    if (!updatedChild) {
+      return res.status(404).json({ message: 'Child not found' });
+    }
+
+    res.status(200).json(updatedChild);
+  } catch (err) {
+    console.error('Error closing the case:', err.message);
+    res.status(500).json({ message: 'Internal server error', error: err.message });
+  }
+});
+
+
+// ----------------------------- Get Rescues Data for Pie Chart -----------------------------
+// Define rescue data route
+app.get('api/rescue-data', async (req, res) => {
+  try {
+    // Count the number of children that are founded and not founded
+    const rescuesDone = await LostChild.countDocuments({ founded: true });
+    const rescuesRemaining = await LostChild.countDocuments({ founded: false });
+
+    // Return the counts in the API response
+    res.status(200).json({
+      rescuesDone: rescuesDone,
+      rescuesRemaining: rescuesRemaining,
+    });
+  } catch (err) {
+    console.error('Error fetching rescue data:', err);
+    res.status(500).json({ message: 'Internal server error', error: err.message });
+  }
+});
+
 
 // ----------------------------- Get Lost Children API -----------------------------
 app.get('/lost-children', async (req, res) => {

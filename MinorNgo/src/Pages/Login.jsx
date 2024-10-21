@@ -27,7 +27,7 @@ const Login = () => {
             navigate('/dashboard');
           } else if (userCategory === "police") {
             console.log("Navigating to /dashboard for police");
-            navigate('/dashboard');
+            navigate('/Policedashboard');
           } else if (userCategory === "investigation") {
             console.log("Navigating to /dashboard for investigation");
             navigate('/dashboard');

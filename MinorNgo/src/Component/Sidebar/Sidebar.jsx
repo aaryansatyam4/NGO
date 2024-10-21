@@ -49,7 +49,7 @@ const Sidebar = () => {
           {/* Be A Volunteer */}
           <li className="nav-item" style={{ marginTop: '50px' }}>
             <Link to="/be-volunteer" className={`nav-link text-decoration-none ${isActive('/be-volunteer')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
-              {isSidebarCollapsed ? <BsPerson /> : 'Be A Volunteer'}
+              {isSidebarCollapsed ? <BsPerson /> : ''}
             </Link>
           </li>
 

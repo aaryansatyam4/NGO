@@ -43,7 +43,7 @@ const UserProfileCard = () => {
 console.log(userData.photo);
   // Determine profile picture URL
   const profilePicture = userData.photo
-  ? `http://localhost:3001/${userData.photo}` // Prepend the full URL
+  ? `http://localhost:3001/userpic/${userData.photo}` // Prepend the full URL
   : "https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"; // Default image if none uploaded
 
   return (
