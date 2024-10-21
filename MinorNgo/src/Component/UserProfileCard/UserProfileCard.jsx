@@ -5,7 +5,7 @@ import ReportedMissingChildren from '../Reported/ReportedMissingChildren';
 
 const UserProfileCard = () => {
   const [userData, setUserData] = useState(null);
-  
+
   // Helper function to read the cookie
   const getCookie = (cookieName) => {
     let name = cookieName + "=";
@@ -40,6 +40,11 @@ const UserProfileCard = () => {
   if (!userData) {
     return <div>Loading...</div>;
   }
+console.log(userData.photo);
+  // Determine profile picture URL
+  const profilePicture = userData.photo
+  ? `http://localhost:3001/${userData.photo}` // Prepend the full URL
+  : "https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"; // Default image if none uploaded
 
   return (
     <section style={{ backgroundColor: '#eee' }}>
@@ -49,8 +54,8 @@ const UserProfileCard = () => {
             <div className="card mb-4">
               <div className="card-body text-center">
                 <img
-                  src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-                  alt="avatar"
+                  src={profilePicture}
+                  alt="User Avatar"
                   className="rounded-circle img-fluid"
                   style={{ width: '150px' }}
                 />

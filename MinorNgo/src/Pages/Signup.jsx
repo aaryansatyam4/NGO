@@ -47,27 +47,42 @@ const Signup = () => {
   const handleIdChange = (event) => {
     setId(event.target.value);
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const formData = {
-      name,
-      mobile,
-      email,
-      category,
-      password,
-      id,
-    };
-
-    axios.post('http://localhost:3001/register', formData)
+  
+    // Prepare FormData for submission
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('mobile', mobile);
+    formData.append('email', email);
+    formData.append('category', category);
+    formData.append('password', password);
+    formData.append('id', id);
+    formData.append('photo', photo); // Append the photo file
+  
+    // Log the FormData for debugging
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}: ${pair[1]}`);
+    }
+  
+    axios.post('http://localhost:3001/register', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
       .then(result => {
         console.log(result);
         navigate('/login'); // Navigate to /login after successful registration
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        if (err.response) {
+          console.log('Error Response:', err.response.data);
+        } else {
+          console.log('Error:', err.message);
+        }
+      });
   };
-
+  
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card p-4 shadow-lg" style={{ width: '36rem', borderRadius: '15px' }}>
@@ -128,6 +143,7 @@ const Signup = () => {
                 </select>
               </div>
 
+              {/* Show ID field if category is "police" or "investigation" */}
               {['police', 'investigation'].includes(category) && (
                 <div className="form-group mb-3">
                   <label htmlFor="id">Police ID/Investigation ID</label>

@@ -13,7 +13,11 @@ const LostChild = require('./models/lostchildmodel');
 // Initialize the app
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use('/userpic', cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}), express.static('userpic'));
+
 app.use(cookieParser()); // For accessing cookies
 
 // MongoDB connection
@@ -24,9 +28,18 @@ mongoose.connect('mongodb+srv://aaryansatyam4:Asatyam2604@user.ycc6w.mongodb.net
   .then(() => console.log('MongoDB connected successfully'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// Multer configuration for file uploads
+// Multer configuration for user profile photo uploads
+const storageUserPic = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'userpic/'); // Save images in the userpic directory
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname); // Use a unique file name
+  },
+});
+const uploadUserPic = multer({ storage: storageUserPic });
 
-// Storage configuration for missing-child (upload2)
+// Multer configuration for missing-child photo uploads
 const storageMissingChild = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'upload2/'); // Directory to save images for missing children
@@ -37,7 +50,7 @@ const storageMissingChild = multer.diskStorage({
 });
 const uploadMissingChild = multer({ storage: storageMissingChild });
 
-// Storage configuration for lost-child (uploads)
+// Multer configuration for lost-child photo uploads
 const storageLostChild = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/'); // Directory to save images for lost children
@@ -49,26 +62,35 @@ const storageLostChild = multer.diskStorage({
 const uploadLostChild = multer({ storage: storageLostChild });
 
 // ----------------------------- User Registration API -----------------------------
-app.post('/register', async (req, res) => {
+app.post('/register', uploadUserPic.single('photo'), async (req, res) => {
   try {
-    const { name, mobile, email, category, password } = req.body;
+    const { name, mobile, email, category, password, id } = req.body;
 
+    // Check if all fields are present
     if (!name || !mobile || !email || !category || !password) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Hash the password for secure storage
+    // Check if photo is uploaded
+    if (!req.file) {
+      return res.status(400).json({ message: 'Profile photo is required' });
+    }
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create the new user
     const newUser = new User({
       name,
       mobile,
       email,
       category,
-      password: hashedPassword, // Save hashed password
+      password: hashedPassword,
+      id,
+      photo: req.file.filename, // Save only the filename
     });
 
-    const savedUser = await newUser.save();
+    const savedUser = await newUser.save(); // Save the user in the database
     res.status(200).json({ message: 'User registered successfully', user: savedUser });
   } catch (error) {
     console.error('Error during user registration:', error);
@@ -117,7 +139,15 @@ app.get('/user/me', async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json(user); // Return user details
+
+    // Construct the photo URL
+    const photoUrl = user.photo ? `http://localhost:3001/${user.photo}` : null;
+
+    // Send back the user details along with the photo URL
+    res.json({
+      ...user._doc, // Use user._doc to avoid mongoose object issues
+      photoUrl: photoUrl || 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp' // Use a default image if photo is missing
+    });
   } catch (err) {
     console.error('Error fetching user:', err);
     res.status(500).json({ message: 'Internal server error' });
@@ -127,7 +157,7 @@ app.get('/user/me', async (req, res) => {
 // ----------------------------- Add Missing Child API -----------------------------
 app.post('/add-missing-child', uploadMissingChild.single('childPhoto'), async (req, res) => {
   const { parentName, contactNumber, childName, age, gender, lastSeen, description } = req.body;
-  const childPhoto = req.file ? req.file.path : null;
+  const childPhoto = req.file ? req.file.filename : null;
 
   const userId = req.cookies.userId; // Get userId from cookies
   if (!userId) {
@@ -156,78 +186,68 @@ app.post('/add-missing-child', uploadMissingChild.single('childPhoto'), async (r
 });
 
 // ----------------------------- Add Lost Child API -----------------------------
-// ----------------------------- Add Lost Child API -----------------------------
 app.post('/add-lost-child', uploadLostChild.single('childPhoto'), async (req, res) => {
-    const { childName, age, gender, lastSeenLocation, description, guardianName, contactInfo, additionalComments } = req.body;
-    const childPhoto = req.file ? req.file.path : null;
-  
-    const userId = req.cookies.userId; // Get userId from cookies
-    if (!userId) {
-      return res.status(401).json({ message: 'User not authenticated' });
-    }
-  
-    try {
-      // Fetch user to get the userId
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      // Automatically set the current date for `lastSeenDate`
-      const newLostChild = new LostChild({
-        submittedBy: userId, // Automatically associate the report with the logged-in user's ID
-        childName,
-        age,
-        gender,
-        lastSeenLocation, // Use lastSeenLocation instead of lastSeen
-        description,
-        guardianName,
-        contactInfo,
-        additionalComments,
-        childPhoto, // Path to uploaded image
-      });
-  
-      const savedLostChild = await newLostChild.save();
-      res.status(201).json({ message: 'Lost child report saved successfully', child: savedLostChild });
-    } catch (err) {
-      console.error('Error saving lost child report:', err.message);
-      res.status(500).json({ message: 'Internal server error', error: err.message });
-    }
-  });
+  const { childName, age, gender, lastSeenLocation, description, guardianName, contactInfo, additionalComments } = req.body;
+  const childPhoto = req.file ? req.file.filename : null;
 
-  
-  app.get('/missing-children', async (req, res) => {
-    const userId = req.cookies.userId; // Get userId from cookies
-    if (!userId) {
-      return res.status(401).json({ message: 'User not authenticated' });
-    }
-  
-    try {
-      const missingChildren = await MissingChild.find({ submittedBy: userId }); // Find missing children by userId
-      res.status(200).json(missingChildren);
-    } catch (err) {
-      console.error('Error fetching missing children:', err);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-  
+  const userId = req.cookies.userId; // Get userId from cookies
+  if (!userId) {
+    return res.status(401).json({ message: 'User not authenticated' });
+  }
 
-  
-  app.get('/lost-children', async (req, res) => {
-    const userId = req.cookies.userId; // Get userId from cookies
-    if (!userId) {
-      return res.status(401).json({ message: 'User not authenticated' });
-    }
-  
-    try {
-      const lostChildren = await LostChild.find({ submittedBy: userId }); // Find lost children by userId
-      res.status(200).json(lostChildren);
-    } catch (err) {
-      console.error('Error fetching lost children:', err);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-  
+  try {
+    const newLostChild = new LostChild({
+      submittedBy: userId, // Associate the report with the logged-in user's ID
+      childName,
+      age,
+      gender,
+      lastSeenLocation, // Use lastSeenLocation instead of lastSeen
+      description,
+      guardianName,
+      contactInfo,
+      additionalComments,
+      childPhoto, // Path to uploaded image
+    });
+
+    const savedLostChild = await newLostChild.save();
+    res.status(201).json({ message: 'Lost child report saved successfully', child: savedLostChild });
+  } catch (err) {
+    console.error('Error saving lost child report:', err.message);
+    res.status(500).json({ message: 'Internal server error', error: err.message });
+  }
+});
+
+// ----------------------------- Get Missing Children API -----------------------------
+app.get('/missing-children', async (req, res) => {
+  const userId = req.cookies.userId; // Get userId from cookies
+  if (!userId) {
+    return res.status(401).json({ message: 'User not authenticated' });
+  }
+
+  try {
+    const missingChildren = await MissingChild.find({ submittedBy: userId }); // Find missing children by userId
+    res.status(200).json(missingChildren);
+  } catch (err) {
+    console.error('Error fetching missing children:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// ----------------------------- Get Lost Children API -----------------------------
+app.get('/lost-children', async (req, res) => {
+  const userId = req.cookies.userId; // Get userId from cookies
+  if (!userId) {
+    return res.status(401).json({ message: 'User not authenticated' });
+  }
+
+  try {
+    const lostChildren = await LostChild.find({ submittedBy: userId }); // Find lost children by userId
+    res.status(200).json(lostChildren);
+  } catch (err) {
+    console.error('Error fetching lost children:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // ----------------------------- Fetch Lost Child by Email API -----------------------------
 app.get('/lost-children/:email', async (req, res) => {
@@ -262,8 +282,10 @@ app.get('/user/:id', async (req, res) => {
 });
 
 // ----------------------------- Serve Uploaded Images -----------------------------
-app.use('/uploads', express.static('uploads'));
-app.use('/upload2', express.static('upload2'));
+// Serve static files with CORS headers for user profile pictures and other image uploads
+app.use('/uploads', cors(), express.static('uploads'));
+app.use('/upload2', cors(), express.static('upload2'));
+app.use('/userpic', cors(), express.static('userpic'));
 
 // ----------------------------- Start Server -----------------------------
 app.listen(3001, () => {
