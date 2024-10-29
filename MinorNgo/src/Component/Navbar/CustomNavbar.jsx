@@ -1,87 +1,100 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Dropdown from 'react-bootstrap/Dropdown';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function CustomNavbar() {
   const [location, setLocation] = useState('Select Location');
-  const [showDropdown, setShowDropdown] = useState(false); // State to toggle dropdown
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [unreadCases, setUnreadCases] = useState([]); // Initialize as an empty array
+  const navigate = useNavigate();
 
-  const handleLocationChange = (event) => {
-    setLocation(event.target.value);
+  useEffect(() => {
+    const fetchUnreadCases = async () => {
+      try {
+        const response = await axios.get('/unread-cases');
+        if (Array.isArray(response.data)) { // Check if response data is an array
+          setUnreadCases(response.data);
+        } else {
+          setUnreadCases([]); // If not, set an empty array
+        }
+      } catch (error) {
+        console.error('Error fetching unread cases:', error);
+        setUnreadCases([]); // Handle error by setting an empty array
+      }
+    };
+
+    fetchUnreadCases();
+  }, []);
+
+  const handleProfileClick = () => {
+    navigate('/profile');
   };
 
-  // Random messages for the alerts
-  const alertMessages = [
-    "New Notification",
-    "Server Update",
-    "Message Received",
-    "Security Alert",
-    "New Location Added",
-  ];
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    navigate('/login');
+  };
 
-  // Generating 5 random alerts
-  const randomAlerts = alertMessages.map((message, index) => (
-    <Dropdown.Item key={index}>{message}</Dropdown.Item>
+  const handleOpenDropdown = async () => {
+    setShowDropdown(true);
+    try {
+      await axios.put('/mark-cases-read');
+      setUnreadCases([]);
+    } catch (error) {
+      console.error('Error marking cases as read:', error);
+    }
+  };
+
+  const unreadCaseItems = unreadCases.map((unreadCase, index) => (
+    <Dropdown.Item key={index}>
+      {unreadCase.childName} - Last seen at {unreadCase.lastSeenLocation}
+    </Dropdown.Item>
   ));
 
-  // Function to navigate to the profile page
-  const handleProfileClick = () => {
-    navigate('/profile'); // Navigate to the profile route
-  };
-
-  // Function to handle logout
-  const handleLogout = () => {
-    // Clear user session (e.g., token, cookies)
-    localStorage.removeItem('token'); // If using localStorage for the token
-    document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; // Clear the cookie
-    navigate('/login'); // Navigate to the login page after logout
-  };
-
   return (
-    <Navbar expand="lg" className="bg-body-tertiary sticky-top"> {/* Added sticky-top class */}
+    <Navbar expand="lg" className="bg-body-tertiary sticky-top">
       <Container>
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
-          <Nav className="ms-auto align-items-center"> {/* align-items-center for vertical alignment */}
-            {/* Notification Bell with Dropdown */}
-            <Dropdown show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)}>
+          <Nav className="ms-auto align-items-center">
+            <Dropdown
+              show={showDropdown}
+              onToggle={() => setShowDropdown(!showDropdown)}
+              onClick={handleOpenDropdown}
+            >
               <Dropdown.Toggle as={Nav.Link} id="dropdown-basic" className="p-0">
                 <i className="bi bi-bell" style={{ fontSize: '24px', cursor: 'pointer' }}></i>
+                {unreadCases.length > 0 && (
+                  <span className="badge">{unreadCases.length}</span>
+                )}
               </Dropdown.Toggle>
 
               <Dropdown.Menu>
-                {randomAlerts}
+                {unreadCases.length > 0 ? unreadCaseItems : <Dropdown.Item>No new cases</Dropdown.Item>}
               </Dropdown.Menu>
             </Dropdown>
 
-            {/* Location Dropdown */}
             <NavDropdown title={location} id="location-nav-dropdown" className="mx-3">
-              <NavDropdown.Item onClick={() => setLocation('New York')}>
-                New York
-              </NavDropdown.Item>
-              <NavDropdown.Item onClick={() => setLocation('London')}>
-                London
-              </NavDropdown.Item>
-              <NavDropdown.Item onClick={() => setLocation('Tokyo')}>
-                Tokyo
-              </NavDropdown.Item>
+              <NavDropdown.Item onClick={() => setLocation('New York')}>New York</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => setLocation('London')}>London</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => setLocation('Tokyo')}>Tokyo</NavDropdown.Item>
             </NavDropdown>
 
-            {/* Profile Icon and Dropdown */}
             <NavDropdown
               title={<i className="bi bi-person-circle" style={{ fontSize: '24px' }}></i>}
               id="profile-nav-dropdown"
               align="end"
             >
               <NavDropdown.Item onClick={handleProfileClick}>Profile</NavDropdown.Item>
-              <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item> {/* Call handleLogout on click */}
+              <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
             </NavDropdown>
           </Nav>
         </Navbar.Collapse>

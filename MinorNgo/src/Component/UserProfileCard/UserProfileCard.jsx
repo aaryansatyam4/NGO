@@ -130,8 +130,7 @@ console.log(userData.photo);
         
               </div>
             </div>
-            <ReportedLostChildren/>
-            <ReportedMissingChildren/>
+          
 
             {/* Project Status */}
             <div className="row">

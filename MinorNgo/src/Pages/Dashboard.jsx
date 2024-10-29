@@ -23,18 +23,7 @@ const Dashboard = () => {
         <div className="content p-4" style={{ width: '100%' }}>
           <MissingChildrenChart />
 
-          {/* Two cards side by side below the line chart */}
-          <div className="row mt-4">
-            {/* Left side: Pie Chart */}
-            <div className="col-md-6">
-              <Piechart />
-            </div>
-
-            {/* Right side: Latest News */}
-            <div className="col-md-6">
-              <LatestNews />
-            </div>
-          </div>
+        
         </div>
       </div>
     </div>

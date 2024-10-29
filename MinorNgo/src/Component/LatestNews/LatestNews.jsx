@@ -102,30 +102,29 @@ const LatestNews = () => {
           </DropdownButton>
 
           <Table striped bordered hover>
-  <thead>
-    <tr>
-      <th>Child Name</th>
-      <th>Age</th>
-      <th>Gender</th>
-      <th>Last Seen Location</th>
-      <th>Last Seen Date</th>
-    </tr>
-  </thead>
-  <tbody>
-    {lostChildrenData
-      .filter((child) => !child.founded) // Filter only cases where the child is not found
-      .map((child, index) => (
-        <tr key={index} onClick={() => handleRowClick(child)} style={{ cursor: 'pointer' }}>
-          <td>{child.childName}</td>
-          <td>{child.age}</td>
-          <td>{child.gender}</td>
-          <td>{child.lastSeenLocation}</td>
-          <td>{new Date(child.lastSeenDate).toLocaleDateString()}</td>
-        </tr>
-      ))}
-  </tbody>
-</Table>
-
+            <thead>
+              <tr>
+                <th>Child Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Last Seen Location</th>
+                <th>Last Seen Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lostChildrenData
+                .filter((child) => !child.founded) // Filter only cases where the child is not found
+                .map((child, index) => (
+                  <tr key={index} onClick={() => handleRowClick(child)} style={{ cursor: 'pointer' }}>
+                    <td>{child.childName}</td>
+                    <td>{child.age}</td>
+                    <td>{child.gender}</td>
+                    <td>{child.lastSeenLocation}</td>
+                    <td>{new Date(child.lastSeenDate).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </Table>
 
           <Pagination>
             {/* Pagination Logic */}
@@ -133,6 +132,7 @@ const LatestNews = () => {
         </Card.Body>
       </Card>
 
+      {/* Modal for displaying the details of the selected child */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>{selectedChild?.childName}'s Details</Modal.Title>
@@ -140,6 +140,15 @@ const LatestNews = () => {
         <Modal.Body>
           {selectedChild && (
             <>
+              {/* Display the child's image */}
+              {console.log(selectedChild.childPhoto)}
+              <img
+  src={`http://localhost:3001/uploads/${selectedChild.childPhoto}`} // Use template literal for the dynamic part
+  alt={selectedChild.childName}
+  className="img-fluid mb-3"
+  style={{ maxHeight: "300px", width: "100%", objectFit: "cover" }}
+/>
+
               <p><strong>Age:</strong> {selectedChild.age}</p>
               <p><strong>Gender:</strong> {selectedChild.gender}</p>
               <p><strong>Last Seen Location:</strong> {selectedChild.lastSeenLocation}</p>
@@ -164,6 +173,7 @@ const LatestNews = () => {
         </Modal.Footer>
       </Modal>
 
+      {/* Confirmation modal for closing the case */}
       <Modal show={showConfirmation} onHide={handleCloseConfirmation}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Close Case</Modal.Title>

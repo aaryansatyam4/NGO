@@ -14,6 +14,7 @@ const LostChildSchema = new mongoose.Schema({
   childPhoto: { type: String },
   lastSeenDate: { type: Date, default: Date.now },
   founded: { type: Boolean, default: false }, // Indicates if the child has been found
+  read: {type:Boolean, default:false},
 });
 
 const LostChild = mongoose.model('LostChild', LostChildSchema);
