@@ -88,7 +88,7 @@ const ReportLostChild = () => {
             <Col md={8}>
               <Card className="shadow-lg p-4 mb-5 bg-white rounded">
                 <Card.Body>
-                  <h3 className="text-center mb-4">Report Lost Child</h3>
+                  <h3 className="text-center mb-4">Bacha Mila</h3>
                   <p className="text-center text-muted mb-4">
                     Please provide as much information as possible to help us find the lost child.
                   </p>

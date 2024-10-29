@@ -1,54 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Card, Button, Modal } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const UpComingEvents = () => {
   const [show, setShow] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  // Sample upcoming events data
-  const events = [
-    {
-      id: 1,
-      title: 'Community Clean-Up Drive',
-      date: 'September 20, 2024',
-      location: 'City Park, New York',
-      time: '10:00 AM - 2:00 PM',
-      objectives: 'Help clean up the park and raise awareness for environmental sustainability.',
-    },
-    {
-      id: 2,
-      title: 'Food Donation Drive',
-      date: 'October 5, 2024',
-      location: 'Downtown Community Center, Chicago',
-      time: '9:00 AM - 5:00 PM',
-      objectives: 'Distribute food to those in need and raise donations for the local food bank.',
-    },
-    {
-      id: 3,
-      title: 'Charity Run for Education',
-      date: 'November 1, 2024',
-      location: 'Central Park, New York',
-      time: '7:00 AM - 11:00 AM',
-      objectives: 'Raise awareness and funds for children\'s education in underprivileged areas.',
-    },
-    {
-      id: 4,
-      title: 'Winter Clothing Drive',
-      date: 'December 15, 2024',
-      location: 'Downtown Mall, San Francisco',
-      time: '11:00 AM - 4:00 PM',
-      objectives: 'Collect winter clothing to distribute to the homeless and low-income families.',
-    },
-    {
-      id: 5,
-      title: 'Blood Donation Camp',
-      date: 'January 10, 2025',
-      location: 'Community Health Center, Chicago',
-      time: '9:00 AM - 2:00 PM',
-      objectives: 'Encourage blood donation to help save lives in local hospitals.',
-    },
-  ];
+  // Fetch upcoming events from the backend
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/events', {
+          withCredentials: true,
+        });
+        
+        // Filter events to include only approved and future events
+        const currentDate = new Date();
+        const upcomingEvents = response.data.filter(event => 
+          event.approved === true && new Date(event.date) > currentDate
+        );
+
+        setEvents(upcomingEvents);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        setErrorMessage('Failed to load events. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const handleShow = (event) => {
     setSelectedEvent(event);
@@ -60,32 +46,39 @@ const UpComingEvents = () => {
   return (
     <div className="container mt-5">
       <h2 className="text-center mb-4">Upcoming Events</h2>
-
-      {/* Scrollable Card for Upcoming Events */}
-      <Card className="shadow p-4">
-        <Card.Body style={{ maxHeight: '400px', overflowY: 'scroll' }}>
-          <div className="list-group">
-            {events.map((event) => (
-              <Button
-                key={event.id}
-                variant="light"
-                className="list-group-item list-group-item-action d-flex justify-content-between align-items-center mb-2"
-                onClick={() => handleShow(event)}
-              >
-                <div>
-                  <strong>ID:</strong> {event.id}
-                </div>
-                <div>
-                  <strong>Event Name:</strong> {event.title}
-                </div>
-                <div>
-                  <strong>Date:</strong> {event.date}
-                </div>
-              </Button>
-            ))}
-          </div>
-        </Card.Body>
-      </Card>
+      
+      {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+      
+      {loading ? (
+        <div className="text-center">Loading events...</div>
+      ) : (
+        <Card className="shadow p-4">
+          <Card.Body style={{ maxHeight: '400px', overflowY: 'scroll' }}>
+            <div className="list-group">
+              {events.length > 0 ? (
+                events.map((event) => (
+                  <Button
+                    key={event._id}
+                    variant="light"
+                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center mb-2"
+                    onClick={() => handleShow(event)}
+                  >
+                
+                    <div>
+                      <strong>Event Name:</strong> {event.title}
+                    </div>
+                    <div>
+                      <strong>Date:</strong> {new Date(event.date).toLocaleDateString()}
+                    </div>
+                  </Button>
+                ))
+              ) : (
+                <div className="text-center">No upcoming events</div>
+              )}
+            </div>
+          </Card.Body>
+        </Card>
+      )}
 
       {/* Modal to show upcoming event details */}
       {selectedEvent && (
@@ -94,7 +87,7 @@ const UpComingEvents = () => {
             <Modal.Title>{selectedEvent.title}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p><strong>Date:</strong> {selectedEvent.date}</p>
+            <p><strong>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}</p>
             <p><strong>Location:</strong> {selectedEvent.location}</p>
             <p><strong>Time:</strong> {selectedEvent.time}</p>
             <p><strong>Objectives:</strong> {selectedEvent.objectives}</p>

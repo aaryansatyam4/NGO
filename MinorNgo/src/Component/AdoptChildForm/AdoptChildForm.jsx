@@ -1,125 +1,310 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { Form, Button, Alert, Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 const AdoptChildForm = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zip: '',
+    preferredAge: '',
+    preferredGender: '',
+    income: '',
+  });
+  
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  // Function to check if all form fields are filled
+  const allFieldsFilled = Object.values(formData).every(field => field !== '');
+
+  // Function to request an OTP
+  const handleSendOtp = async () => {
+    if (!allFieldsFilled) {
+      setErrorMessage('Please fill out all fields before requesting OTP.');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const response = await axios.post('http://localhost:3001/send-otp', { email: formData.email });
+      setOtpSent(true);
+      setSuccessMessage(response.data.message);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error sending OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to verify the OTP
+  const handleVerifyOtp = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const response = await axios.post('http://localhost:3001/verify-otp', { email: formData.email, otp });
+      setOtpVerified(true);
+      setSuccessMessage(response.data.message);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Invalid OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to submit the adoption form
+  const handleSubmitForm = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    if (!otpVerified) {
+      setErrorMessage('Please verify your OTP before submitting the form.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3001/adopt-child', formData);
+      setSuccessMessage(response.data.message);
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        zip: '',
+        preferredAge: '',
+        preferredGender: '',
+        income: '',
+      });
+      setOtp('');
+      setOtpSent(false);
+      setOtpVerified(false);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error submitting form');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="container mt-5">
       <h1 className="text-center mb-4">Adopt a Child</h1>
-      <form>
-        {/* Applicant Information */}
+
+      {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+      {successMessage && <Alert variant="success">{successMessage}</Alert>}
+
+      <Form onSubmit={handleSubmitForm}>
         <h3>Applicant Information</h3>
         <div className="row mb-3">
           <div className="col-md-6">
-            <label htmlFor="firstName" className="form-label">First Name</label>
-            <input type="text" className="form-control" id="firstName" placeholder="Enter first name" required />
+            <Form.Label>First Name</Form.Label>
+            <Form.Control
+              type="text"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              placeholder="Enter first name"
+              required
+              disabled={otpSent}
+            />
           </div>
           <div className="col-md-6">
-            <label htmlFor="lastName" className="form-label">Last Name</label>
-            <input type="text" className="form-control" id="lastName" placeholder="Enter last name" required />
-          </div>
-        </div>
-        
-        <div className="row mb-3">
-          <div className="col-md-6">
-            <label htmlFor="email" className="form-label">Email</label>
-            <input type="email" className="form-control" id="email" placeholder="Enter your email" required />
-          </div>
-          <div className="col-md-6">
-            <label htmlFor="phone" className="form-label">Phone Number</label>
-            <input type="tel" className="form-control" id="phone" placeholder="Enter phone number" pattern="[0-9]{10}" required />
-            <small className="text-muted">Phone number must be 10 digits.</small>
+            <Form.Label>Last Name</Form.Label>
+            <Form.Control
+              type="text"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              placeholder="Enter last name"
+              required
+              disabled={otpSent}
+            />
           </div>
         </div>
 
-        {/* Address */}
-        <h3>Address</h3>
-        <div className="row mb-3">
-          <div className="col-md-12">
-            <label htmlFor="address" className="form-label">Street Address</label>
-            <input type="text" className="form-control" id="address" placeholder="Enter street address" required />
-          </div>
-        </div>
-        
         <div className="row mb-3">
           <div className="col-md-6">
-            <label htmlFor="city" className="form-label">City</label>
-            <input type="text" className="form-control" id="city" placeholder="Enter city" required />
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email"
+              required
+              disabled={otpSent}
+            />
+          </div>
+          <div className="col-md-6">
+            <Form.Label>Phone Number</Form.Label>
+            <Form.Control
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Enter phone number"
+              pattern="[0-9]{10}"
+              required
+              disabled={otpSent}
+            />
+          </div>
+        </div>
+
+        <h3>Address</h3>
+        <Form.Group className="mb-3">
+          <Form.Label>Street Address</Form.Label>
+          <Form.Control
+            type="text"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            placeholder="Enter street address"
+            required
+            disabled={otpSent}
+          />
+        </Form.Group>
+
+        <div className="row mb-3">
+          <div className="col-md-4">
+            <Form.Label>City</Form.Label>
+            <Form.Control
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              placeholder="Enter city"
+              required
+              disabled={otpSent}
+            />
           </div>
           <div className="col-md-4">
-            <label htmlFor="state" className="form-label">State</label>
-            <select className="form-select" id="state" required>
-              <option value="" disabled selected>Select your state</option>
-              <option>New York</option>
-              <option>California</option>
-              <option>Florida</option>
-              {/* Add more states as needed */}
-            </select>
+            <Form.Label>State</Form.Label>
+            <Form.Control
+              type="text"
+              name="state"
+              value={formData.state}
+              onChange={handleChange}
+              placeholder="Enter state"
+              required
+              disabled={otpSent}
+            />
           </div>
-          <div className="col-md-2">
-            <label htmlFor="zip" className="form-label">Zip Code</label>
-            <input type="text" className="form-control" id="zip" placeholder="Enter zip code" pattern="[0-9]{5}" required />
+          <div className="col-md-4">
+            <Form.Label>Zip Code</Form.Label>
+            <Form.Control
+              type="text"
+              name="zip"
+              value={formData.zip}
+              onChange={handleChange}
+              placeholder="Enter zip code"
+              pattern="[0-9]{5}"
+              required
+              disabled={otpSent}
+            />
           </div>
         </div>
 
-        {/* Child Preferences */}
         <h3>Child Preferences</h3>
         <div className="row mb-3">
           <div className="col-md-6">
-            <label htmlFor="preferredAge" className="form-label">Preferred Age</label>
-            <select className="form-select" id="preferredAge" required>
-              <option value="" disabled selected>Select age range</option>
+            <Form.Label>Preferred Age</Form.Label>
+            <Form.Select
+              name="preferredAge"
+              value={formData.preferredAge}
+              onChange={handleChange}
+              required
+              disabled={otpSent}
+            >
+              <option value="" disabled>Select age range</option>
               <option>0 - 2 years</option>
               <option>2 - 5 years</option>
               <option>5 - 10 years</option>
               <option>10+ years</option>
-            </select>
+            </Form.Select>
           </div>
           <div className="col-md-6">
-            <label htmlFor="preferredGender" className="form-label">Preferred Gender</label>
-            <select className="form-select" id="preferredGender" required>
-              <option value="" disabled selected>Select gender preference</option>
+            <Form.Label>Preferred Gender</Form.Label>
+            <Form.Select
+              name="preferredGender"
+              value={formData.preferredGender}
+              onChange={handleChange}
+              required
+              disabled={otpSent}
+            >
+              <option value="" disabled>Select gender preference</option>
               <option>Male</option>
               <option>Female</option>
               <option>No Preference</option>
-            </select>
+            </Form.Select>
           </div>
         </div>
 
-        {/* Legal and Financial Information */}
         <h3>Legal and Financial Information</h3>
-        <div className="row mb-3">
-          <div className="col-md-12">
-            <label htmlFor="income" className="form-label">Annual Income</label>
-            <input type="number" className="form-control" id="income" placeholder="Enter annual income" required />
-          </div>
-        </div>
-        
-        <div className="mb-3">
-          <label htmlFor="legalDocuments" className="form-label">Upload Legal Documents (ID, Proof of Income)</label>
-          <input className="form-control" type="file" id="legalDocuments" multiple required />
-        </div>
-        
-        <div className="form-check mb-3">
-          <input className="form-check-input" type="checkbox" id="agreement" required />
-          <label className="form-check-label" htmlFor="agreement">
-            I agree to the terms and conditions of the adoption process.
-          </label>
-        </div>
+        <Form.Group className="mb-3">
+          <Form.Label>Annual Income</Form.Label>
+          <Form.Control
+            type="number"
+            name="income"
+            value={formData.income}
+            onChange={handleChange}
+            placeholder="Enter annual income"
+            required
+            disabled={otpSent}
+          />
+        </Form.Group>
 
-        {/* Verification Section */}
         <h3>Verification</h3>
         <div className="row mb-3">
           <div className="col-md-6">
-            <label htmlFor="otp" className="form-label">OTP Verification</label>
-            <input type="text" className="form-control" id="otp" placeholder="Enter OTP sent to your phone" required />
+            <Form.Label>OTP</Form.Label>
+            <Form.Control
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="Enter OTP sent to email"
+              disabled={!otpSent}
+              required
+            />
           </div>
           <div className="col-md-6 d-flex align-items-end">
-            <button type="button" className="btn btn-primary">Generate OTP</button>
+            {!otpSent && (
+              <Button variant="primary" onClick={handleSendOtp} disabled={loading || !allFieldsFilled}>
+                {loading ? <Spinner animation="border" size="sm" /> : 'Send OTP'}
+              </Button>
+            )}
+            {otpSent && !otpVerified && (
+              <Button variant="success" onClick={handleVerifyOtp} disabled={loading}>
+                {loading ? <Spinner animation="border" size="sm" /> : 'Verify OTP'}
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* Submit Button */}
-        <button type="submit" className="btn btn-success">Submit Application</button>
-      </form>
+        <Button type="submit" variant="success" className="mt-3" disabled={!otpVerified || loading}>
+          {loading ? <Spinner animation="border" size="sm" /> : 'Submit Application'}
+        </Button>
+      </Form>
     </div>
   );
 };
