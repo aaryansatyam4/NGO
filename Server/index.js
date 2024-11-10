@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(cookieParser()); // For accessing cookies
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://aaryansatyam4:Asatyam2604@user.ycc6w.mongodb.net/', {
+mongoose.connect('your connection string here', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
