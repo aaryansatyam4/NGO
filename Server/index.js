@@ -332,7 +332,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: '22103036@mail.jiit.ac.in',
-    pass: 'MUMMYPAPA@1008',
+    pass: process.env.GMAIL_SECRET_PASSWORD,
   },
 });
 
@@ -351,6 +351,7 @@ app.post('/send-otp', (req, res) => {
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
+      console.error('Error in transporter.sendMail:', error);
       return res.status(500).json({ message: 'Error sending OTP', error });
     }
     res.status(200).json({ message: 'OTP sent successfully' });
