@@ -31,4 +31,5 @@ dist-ssr
 *.sw?
 
 # Specific project ignores
-.env
+MinorNgo/.env
+Server/.env
