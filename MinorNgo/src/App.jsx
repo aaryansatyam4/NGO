@@ -13,6 +13,7 @@ import Gallery from './Pages/Gallery';
 import AdoptChild from './Pages/AdoptChild';
 import Profile from './Pages/Profile';
 import PoliceDashboard from './Pages/PoliceDashboard';
+import FaceMatch from './Pages/FaceMatch';
 const App = () => {
   return (
     <Router>
@@ -30,6 +31,7 @@ const App = () => {
         <Route path="/Gallery" element={<Gallery />} />
         <Route path="/AdoptChild" element={<AdoptChild />} />
         <Route path="/Profile" element={<Profile />} />
+        <Route path="/facematch" element={<FaceMatch />} />
       </Routes>
     </Router>
   );

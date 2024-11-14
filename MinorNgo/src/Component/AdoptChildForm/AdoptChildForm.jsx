@@ -39,7 +39,7 @@ const AdoptChildForm = () => {
       setErrorMessage('Please fill out all fields before requesting OTP.');
       return;
     }
-
+  
     setLoading(true);
     setErrorMessage('');
     try {
@@ -47,13 +47,13 @@ const AdoptChildForm = () => {
       setOtpSent(true);
       setSuccessMessage(response.data.message);
     } catch (error) {
+      console.error('Error in handleSendOtp:', error);
       setErrorMessage(error.response?.data?.message || 'Error sending OTP');
     } finally {
       setLoading(false);
     }
   };
-
-  // Function to verify the OTP
+  
   const handleVerifyOtp = async () => {
     setLoading(true);
     setErrorMessage('');
@@ -62,25 +62,25 @@ const AdoptChildForm = () => {
       setOtpVerified(true);
       setSuccessMessage(response.data.message);
     } catch (error) {
+      console.error('Error in handleVerifyOtp:', error);
       setErrorMessage(error.response?.data?.message || 'Invalid OTP');
     } finally {
       setLoading(false);
     }
   };
-
-  // Function to submit the adoption form
+  
   const handleSubmitForm = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
-
+  
     if (!otpVerified) {
       setErrorMessage('Please verify your OTP before submitting the form.');
       setLoading(false);
       return;
     }
-
+  
     try {
       const response = await axios.post('http://localhost:3001/adopt-child', formData);
       setSuccessMessage(response.data.message);
@@ -101,11 +101,13 @@ const AdoptChildForm = () => {
       setOtpSent(false);
       setOtpVerified(false);
     } catch (error) {
+      console.error('Error in handleSubmitForm:', error); // Log the complete error
       setErrorMessage(error.response?.data?.message || 'Error submitting form');
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="container mt-5">
@@ -306,7 +308,7 @@ const AdoptChildForm = () => {
         </Button>
       </Form>
     </div>
-  );
+  ); 
 };
 
 export default AdoptChildForm;

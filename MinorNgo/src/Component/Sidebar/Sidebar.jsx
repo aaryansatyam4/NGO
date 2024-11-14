@@ -31,7 +31,7 @@ const Sidebar = () => {
         >
           <FaBars />
         </button>
-        <h4 className="m-0">NGO</h4>
+        <h4 className="m-0">NanheKadam</h4>
       </div>
 
       {/* Sidebar */}
@@ -46,9 +46,9 @@ const Sidebar = () => {
         paddingTop: '60px' 
       }}>
         <ul className="nav nav-pills flex-column mb-auto">
-          {/* Be A Volunteer */}
+          {/* Dash Board */}
           <li className="nav-item" style={{ marginTop: '50px' }}>
-            <Link to="/be-volunteer" className={`nav-link text-decoration-none ${isActive('/be-volunteer')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
+            <Link to="/DashBoard" className={`nav-link text-decoration-none ${isActive('/DashBoard')} ${isSidebarCollapsed ? 'text-center' : ''}`}>
               {isSidebarCollapsed ? <BsPerson /> : 'Dashboard'}
             </Link>
           </li>

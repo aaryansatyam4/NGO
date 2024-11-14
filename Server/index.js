@@ -1,3 +1,8 @@
+const dotenv = require('dotenv');
+dotenv.config();
+const Razorpay = require('razorpay');
+
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -5,7 +10,7 @@ const multer = require('multer');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const nodemailer = require('nodemailer');
-
+const { PythonShell } = require('python-shell');
 // Import models
 const User = require('./models/usermodel');
 const MissingChild = require('./models/missingchild');
@@ -14,6 +19,11 @@ const Event = require('./models/eventmodel'); // Assuming Event model is created
 const Adoption = require('./models/adoptionmodel1');
 // Initialize the app
 const app = express();
+const policeContact = {
+  name: 'NanheKadam',
+  phone: '7852836979',
+  station: 'Police Statioin 1212 ABB3',
+};
 
 // Enable CORS for all routes globally
 app.use(cors({
@@ -26,7 +36,7 @@ app.use(express.json());
 app.use(cookieParser()); // For accessing cookies
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://aaryansatyam4:Asatyam2604@user.ycc6w.mongodb.net/', {
+mongoose.connect('mongodb://localhost:27017/', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -282,6 +292,25 @@ app.put('/close-case/:id', async (req, res) => {
   }
 });
 
+// ----------------------------- Get Unadopted Children API -----------------------------
+app.get('/unadopted-children', async (req, res) => {
+  try {
+    // Fetch children who are not founded and not yet adopted
+    const unadoptedChildren = await MissingChild.find({ founded: false, adopted: false });
+    
+    // If no children are found
+    if (!unadoptedChildren.length) {
+      return res.status(404).json({ message: 'No unadopted children found' });
+    }
+
+    // Send the list of children to the client
+    res.status(200).json(unadoptedChildren);
+  } catch (err) {
+    console.error('Error fetching unadopted children:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 // ----------------------------- Get Rescue Data API -----------------------------
 app.get('/rescue-data', async (req, res) => {
   try {
@@ -302,8 +331,8 @@ const otpMap = new Map(); // Temporary store for OTPs, replace with session if n
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: '22103044@mail.jiit.ac.in',
-    pass: 'Bolnolgel31',
+    user: '22103036@mail.jiit.ac.in',
+    pass: 'MUMMYPAPA@1008',
   },
 });
 
@@ -314,7 +343,7 @@ app.post('/send-otp', (req, res) => {
   otpMap.set(email, otp);
 
   const mailOptions = {
-    from: '22103044@mail.jiit.ac.in',
+    from: '22103036@mail.jiit.ac.in',
     to: email,
     subject: 'Your OTP for Child Adoption',
     text: `Your OTP is ${otp}. Please use this to verify your adoption form.`,
@@ -363,7 +392,7 @@ app.post('/adopt-child', async (req, res) => {
     const savedAdoption = await adoptionRecord.save();
 
     // Find an unfounded and unadopted child
-    const child = await MissingChild.findOne({ founded: false, adopted: false }).exec();
+    const child = await MissingChild.findOne({ founded: false, adopted: false });
     if (!child) {
       return res.status(404).json({ message: 'No children available for adoption at the moment' });
     }
@@ -386,7 +415,7 @@ app.post('/adopt-child', async (req, res) => {
 
     // Send notification email to the applicant
     const mailOptions = {
-      from: '22103044@mail.jiit.ac.in',
+      from: '22103036@mail.jiit.ac.in',
       to: email,
       subject: 'Adoption Assignment',
       text: `Dear applicant, you have been assigned the child: ${child.childName}. Please proceed to ${policeContact.station} and contact Officer ${policeContact.name} at ${policeContact.phone} for further steps.`,
@@ -403,11 +432,157 @@ app.post('/adopt-child', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+ 
+
+// app.post('/match-face', uploadLostChild.single('childPhoto'), (req, res) => {
+//   if (!req.file) {
+//     return res.status(400).json({ message: 'Child photo is required for face matching' });
+//   }
+
+//   // Prepare options to pass the uploaded image path to the Python script
+//   const options = {
+//     args: [req.file.path], // pass the image path as an argument
+//   };
+
+//   // Execute the face matching Python script
+//   PythonShell.run('./pythonFaceMatchingScript.py', options, (err, results) => {
+//     if (err) {
+//       console.error('Error running face matching script:', err);
+//       return res.status(500).json({ message: 'Face matching failed', error: err.message });
+//     }
+
+//     // Process the Python script's output (results) to determine if a match was found
+//     const matchFound = results && results[0] === 'match'; // Example: assuming 'match' indicates a match
+//     if (matchFound) {
+//       res.status(200).json({ message: 'Match found', details: results });
+//     } else {
+//       res.status(404).json({ message: 'No match found' });
+//     }
+  // });
+// });
 
 
 
+// Initialize Razorpay instance with environment variables
+const razorpayInstance = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID, // Store your Razorpay Key ID in .env
+  key_secret: process.env.RAZORPAY_KEY_SECRET, // Store your Razorpay Key Secret in .env
+});
+
+// ----------------------------- Donation Order API -----------------------------
+// Endpoint to create a Razorpay order
+app.post('/donate', async (req, res) => {
+  const { amount } = req.body; // Amount in INR, for example, 500 for 500 INR
+  const payment_capture = 1;
+  const currency = "INR";
+
+  try {
+    const options = {
+      amount: amount * 100, // Amount in paisa
+      currency,
+      receipt: `receipt_order_${Math.random() * 1000}`,
+      payment_capture,
+    };
+
+    // Create order on Razorpay
+    const order = await razorpayInstance.orders.create(options);
+    res.status(200).json({ orderId: order.id, currency: order.currency, amount: order.amount });
+  } catch (error) {
+    console.error('Error creating Razorpay order:', error);
+    res.status(500).json({ message: 'Unable to create order', error });
+  }
+});
+
+// ----------------------------- Payment Verification API (Optional) -----------------------------
+// Endpoint to verify payment on the backend
+app.post('/verify-payment', (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+  const crypto = require('crypto');
+  const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+  hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+  const generated_signature = hmac.digest('hex');
+
+  if (generated_signature === razorpay_signature) {
+    res.status(200).json({ message: 'Payment verification successful' });
+  } else {
+    res.status(400).json({ message: 'Invalid payment signature' });
+  }
+});
 
 
+app.post('/adopt-child', async (req, res) => {
+  const { firstName, lastName, email, phone, address, city, state, zip, preferredAge, preferredGender, income } = req.body;
+
+  try {
+    // Log request data for debugging
+    console.log('Received adoption form data:', req.body);
+
+    // Store the form data in the Adoption model
+    const adoptionRecord = new Adoption({
+      firstName,
+      lastName,
+      email,
+      phone,
+      address,
+      city,
+      state,
+      zip,
+      preferredAge,
+      preferredGender,
+      income,
+    });
+
+    const savedAdoption = await adoptionRecord.save();
+    console.log('Adoption record saved:', savedAdoption);
+
+    // Find an unfounded and unadopted child
+    const child = await MissingChild.findOne({ founded: false, adopted: false });
+    if (!child) {
+      console.warn('No children available for adoption at the moment');
+      return res.status(404).json({ message: 'No children available for adoption at the moment' });
+    }
+
+    // Update the child’s status in the database
+    child.founded = true;
+    child.adopted = true;
+    await child.save();
+    console.log('Child status updated:', child);
+
+    // Update the adoptedChildId in the adoption record
+    savedAdoption.adoptedChildId = child._id;
+    await savedAdoption.save();
+    console.log('Adopted child ID added to adoption record:', savedAdoption);
+
+    // Mocked police contact details
+    const policeContact = {
+      name: 'Officer John Doe',
+      phone: '123-456-7890',
+      station: 'Downtown Police Station',
+    };
+
+    // Send notification email to the applicant
+    const mailOptions = {
+      from: '22103036@mail.jiit.ac.in',
+      to: email,
+      subject: 'Adoption Assignment',
+      text: `Dear applicant, you have been assigned the child: ${child.childName}. Please proceed to ${policeContact.station} and contact Officer ${policeContact.name} at ${policeContact.phone} for further steps.`,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log('Notification email sent to:', email);
+      res.status(200).json({ message: 'Adoption form submitted successfully. Check your email for details.' });
+    } catch (emailError) {
+      console.error('Error sending notification email:', emailError);
+      res.status(500).json({ message: 'Error sending notification email', error: emailError.message });
+    }
+
+  } catch (error) {
+    console.error('Error processing adoption form:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+});
 
 
 
