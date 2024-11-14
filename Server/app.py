@@ -16,7 +16,7 @@ def load_images_from_folder(folder):
         if filename.endswith(('png', 'jpg', 'jpeg')):
             img_path = os.path.join(folder, filename)
             try:
-                img = Image.open(img_path).convert("RGB")  # Convert image to RGB
+                img = Image.open(img_path).convert("RGB")  # convert image to RGB
                 img = np.array(img)
                 images.append((filename, img))
             except Exception as e:
