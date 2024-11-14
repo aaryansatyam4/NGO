@@ -37,7 +37,7 @@ app.use(cookieParser()); // For accessing cookies
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/', {
-  useNewUrlParser: true,
+  useNewUrlParser: true,  
   useUnifiedTopology: true,
 })
   .then(() => console.log('MongoDB connected successfully'))
