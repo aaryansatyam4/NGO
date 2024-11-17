@@ -1,4 +1,4 @@
-import React from 'react'
+// import React from 'react'
 import DonateAmt from '../Component/Donate/DonateAmt'
 import Sidebar from '../Component/Sidebar/Sidebar'; // Import Sidebar component
 import Navbar from '../Component/Navbar/CustomNavbar.jsx'; // Import Navbar component

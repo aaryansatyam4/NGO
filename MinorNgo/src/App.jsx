@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import Login from './Pages/Login';
@@ -31,7 +31,7 @@ const App = () => {
         <Route path="/Gallery" element={<Gallery />} />
         <Route path="/AdoptChild" element={<AdoptChild />} />
         <Route path="/Profile" element={<Profile />} />
-        <Route path="/facematch" element={<FaceMatch />} />
+        <Route path="/faceMatch" element={<FaceMatch />} />
       </Routes>
     </Router>
   );

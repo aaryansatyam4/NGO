@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import  { useState } from 'react';
 import axios from 'axios';
 
 const FaceMatch = () => {
@@ -21,11 +21,12 @@ const FaceMatch = () => {
         formData.append("image", selectedFile);
 
         try {
-            const response = await axios.post("http://127.0.0.1:5000/match-face", formData, {
+            const response = await axios.post("http://127.0.0.1:5000/faceMatch", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
+            
             setMatchResult(response.data.match ? "Match found!" : "No match found.");
         } catch (error) {
             setMatchResult("Error: " + (error.response ? error.response.data.error : "Server error"));
@@ -36,7 +37,7 @@ const FaceMatch = () => {
         <div>
             <h2>Face Match</h2>
             <form onSubmit={handleSubmit}>
-                <input type="file" onChange={handleFileChange} />
+                <input type="file" accept="image/*" onChange={handleFileChange} />
                 <button type="submit">Check Match</button>
             </form>
             <p>{matchResult}</p>

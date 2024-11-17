@@ -435,35 +435,6 @@ app.post('/adopt-child', async (req, res) => {
 });
  
 
-// app.post('/match-face', uploadLostChild.single('childPhoto'), (req, res) => {
-//   if (!req.file) {
-//     return res.status(400).json({ message: 'Child photo is required for face matching' });
-//   }
-
-//   // Prepare options to pass the uploaded image path to the Python script
-//   const options = {
-//     args: [req.file.path], // pass the image path as an argument
-//   };
-
-//   // Execute the face matching Python script
-//   PythonShell.run('./pythonFaceMatchingScript.py', options, (err, results) => {
-//     if (err) {
-//       console.error('Error running face matching script:', err);
-//       return res.status(500).json({ message: 'Face matching failed', error: err.message });
-//     }
-
-//     // Process the Python script's output (results) to determine if a match was found
-//     const matchFound = results && results[0] === 'match'; // Example: assuming 'match' indicates a match
-//     if (matchFound) {
-//       res.status(200).json({ message: 'Match found', details: results });
-//     } else {
-//       res.status(404).json({ message: 'No match found' });
-//     }
-  // });
-// });
-
-
-
 // Initialize Razorpay instance with environment variables
 const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID, // Store your Razorpay Key ID in .env
